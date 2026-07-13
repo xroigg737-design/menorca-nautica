@@ -304,10 +304,38 @@
         }
 
         /* === MARINE === */
+        .marine-zones {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .marine-zone-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            overflow: hidden;
+        }
+        .marine-zone-header {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--blue-deep);
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--blue-pale);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .marine-zone-header .coords {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-light);
+        }
         .marine-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
         }
         .marine-card {
             background: var(--white);
@@ -576,7 +604,8 @@
             .header-subtitle { font-size: 0.85rem; }
             #map { height: 340px; }
             .stations-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-            .marine-grid { grid-template-columns: repeat(2, 1fr); }
+            .marine-zones { grid-template-columns: 1fr; }
+            .marine-grid { grid-template-columns: repeat(3, 1fr); }
             .webcams-grid { grid-template-columns: 1fr; }
             .forecast-panel iframe { height: 350px; }
             .portus-cards { grid-template-columns: 1fr; }
@@ -584,6 +613,7 @@
         @media (max-width: 480px) {
             .stations-grid { grid-template-columns: 1fr; }
             .marine-grid { grid-template-columns: repeat(2, 1fr); }
+            .marine-zone-card { padding: 0.8rem; }
             .nav-inner a { padding: 0.7rem 0.75rem; font-size: 0.8rem; }
         }
 
@@ -816,19 +846,19 @@
                 <div class="portus-cards">
                     <div class="portus-card">
                         <h4>Alçada d'ona (Hm0, Hmax)</h4>
-                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=Hm0,Hmax&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe id="portus-waves" loading="lazy"></iframe>
                     </div>
                     <div class="portus-card">
                         <h4>Període d'ona (Tm02, Tp)</h4>
-                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=Tm02,Tp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe id="portus-period" loading="lazy"></iframe>
                     </div>
                     <div class="portus-card">
                         <h4>Temperatura de l'aigua</h4>
-                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=WaterTemp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe id="portus-temp" loading="lazy"></iframe>
                     </div>
                     <div class="portus-card">
                         <h4>Vent a la boia</h4>
-                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=WindSpeed,WindGust&dirParams=WindDir&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe id="portus-wind" loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
@@ -842,16 +872,16 @@
         <section id="prediccio">
             <h2 class="section-title">Predicció</h2>
             <div class="forecast-tabs" id="forecast-tabs">
-                <button class="forecast-tab active" data-tab="windy">Windy</button>
-                <button class="forecast-tab" data-tab="windguru">Windguru</button>
+                <button class="forecast-tab active" data-tab="windguru">Windguru</button>
+                <button class="forecast-tab" data-tab="windy">Windy AROME</button>
                 <button class="forecast-tab" data-tab="hourly">Horària</button>
                 <button class="forecast-tab" data-tab="marine-fc">Onatge</button>
                 <button class="forecast-tab" data-tab="pressure">Pressió</button>
             </div>
-            <div class="forecast-panel active" id="panel-windy">
-                <iframe src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricWind=kt&metricTemp=%C2%B0C&zoom=10&lat=39.95&lon=4.08&pressure=true&model=ecmwf&marker=true&calendar=now&message=true" loading="lazy"></iframe>
+            <div class="forecast-panel" id="panel-windy">
+                <iframe src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricWind=kt&metricTemp=%C2%B0C&zoom=10&lat=39.95&lon=4.08&pressure=true&model=arome&marker=true&calendar=now&message=true" loading="lazy"></iframe>
             </div>
-            <div class="forecast-panel" id="panel-windguru">
+            <div class="forecast-panel active" id="panel-windguru">
                 <div class="windguru-container" id="windguru-container">
                     <div class="loading"><div class="spinner"></div> Carregant Windguru...</div>
                 </div>
@@ -862,6 +892,7 @@
                 </div>
             </div>
             <div class="forecast-panel" id="panel-marine-fc">
+                <div style="padding:0.6rem 1rem 0;font-size:0.78rem;color:var(--text-light);">Predicció costa sud de Menorca (39.80°N, 4.10°E) · Model Open-Meteo Marine</div>
                 <div class="forecast-table-wrap" id="marine-fc-table">
                     <div class="loading"><div class="spinner"></div> Carregant predicció d'onatge...</div>
                 </div>
@@ -874,7 +905,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.6</div>
+        <div>Bufa a Menorca? &mdash; v2.7</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -894,8 +925,12 @@ const STATIONS = [
     { id: 'cavalleria', name: 'Cap de Cavalleria', lat: 40.0831, lon: 4.0906, desc: 'Punt més septentrional' },
     { id: 'ciutadella', name: 'Ciutadella', lat: 40.0003, lon: 3.8367, desc: 'Costa oest · Port' },
     { id: 'artrutx', name: "Cap d'Artrutx", lat: 39.9208, lon: 3.8156, desc: 'Punta sud-oest' },
+    { id: 'cala-morell', name: 'Cala Morell', lat: 40.0450, lon: 3.8900, desc: 'Costa nord-oest' },
     { id: 'son-bou', name: 'Son Bou', lat: 39.9006, lon: 4.0711, desc: 'Costa sud' },
-    { id: 'aeroport', name: 'Aeroport', lat: 39.8625, lon: 4.2186, desc: 'Estació AEMET referència' },
+    { id: 'cala-galdana', name: 'Cala Galdana', lat: 39.8720, lon: 3.9600, desc: 'Costa sud' },
+    { id: 'punta-prima', name: 'Punta Prima', lat: 39.8150, lon: 4.2830, desc: 'Costa sud-est' },
+    { id: 'es-grau', name: 'Es Grau', lat: 39.9500, lon: 4.2650, desc: 'Costa est · Parc natural' },
+    { id: 'sanitja', name: 'Sanitja', lat: 40.0700, lon: 4.0650, desc: 'Costa nord' },
 ];
 
 const METEOCLIMATIC_MATCH = {
@@ -1281,12 +1316,12 @@ function renderStations(stationsData) {
 // MARINE CONDITIONS
 // ============================================================
 
-function renderMarineZone(c, zoneName) {
+function renderMarineZone(c) {
     return `
         <div class="marine-card">
             <div class="marine-icon">🌊</div>
             <div class="marine-value">${c.wave_height} <span class="unit">m</span></div>
-            <div class="marine-label">Alçada d'ona</div>
+            <div class="marine-label">Alçada ona</div>
         </div>
         <div class="marine-card">
             <div class="marine-icon">⏱️</div>
@@ -1296,12 +1331,12 @@ function renderMarineZone(c, zoneName) {
         <div class="marine-card">
             <div class="marine-icon">🧭</div>
             <div class="marine-value">${getWindAbbr(c.wave_direction)}</div>
-            <div class="marine-label">Dir. onatge (${Math.round(c.wave_direction)}°)</div>
+            <div class="marine-label">Dir. (${Math.round(c.wave_direction)}°)</div>
         </div>
         <div class="marine-card">
             <div class="marine-icon">💨</div>
             <div class="marine-value">${c.wind_wave_height} <span class="unit">m</span></div>
-            <div class="marine-label">Ona de vent</div>
+            <div class="marine-label">Ona vent</div>
         </div>
         <div class="marine-card">
             <div class="marine-icon">〰️</div>
@@ -1320,19 +1355,25 @@ function renderMarine(data) {
     const grid = document.getElementById('marine-grid');
     const sud = data.sud?.current;
     const nord = data.nord?.current;
-    let html = '<div style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">Model Open-Meteo Marine · Dades en temps real</div>';
-
-    if (nord) {
-        html += `<h4 style="font-size:0.9rem;font-weight:700;color:var(--blue-deep);margin:0.8rem 0 0.5rem;display:flex;align-items:center;gap:0.4rem;">
-            <span style="color:var(--blue-mid);">&#9650;</span> Costa nord <span style="font-size:0.7rem;font-weight:400;color:var(--text-light);">(40.12°N, 4.08°E)</span></h4>`;
-        html += `<div class="marine-grid">${renderMarineZone(nord, 'Nord')}</div>`;
-    }
-    if (sud) {
-        html += `<h4 style="font-size:0.9rem;font-weight:700;color:var(--blue-deep);margin:1rem 0 0.5rem;display:flex;align-items:center;gap:0.4rem;">
-            <span style="color:var(--blue-mid);">&#9660;</span> Costa sud <span style="font-size:0.7rem;font-weight:400;color:var(--text-light);">(39.80°N, 4.10°E)</span></h4>`;
-        html += `<div class="marine-grid">${renderMarineZone(sud, 'Sud')}</div>`;
-    }
-    grid.innerHTML = html;
+    grid.innerHTML = `
+        <div style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.8rem;">Model Open-Meteo Marine · Temps real</div>
+        <div class="marine-zones">
+            <div class="marine-zone-card">
+                <div class="marine-zone-header">
+                    <span style="color:var(--blue-mid);">&#9650;</span> Costa nord
+                    <span class="coords">40.12°N, 4.08°E</span>
+                </div>
+                <div class="marine-grid">${nord ? renderMarineZone(nord) : '<div>—</div>'}</div>
+            </div>
+            <div class="marine-zone-card">
+                <div class="marine-zone-header">
+                    <span style="color:var(--blue-mid);">&#9660;</span> Costa sud
+                    <span class="coords">39.80°N, 4.10°E</span>
+                </div>
+                <div class="marine-grid">${sud ? renderMarineZone(sud) : '<div>—</div>'}</div>
+            </div>
+        </div>
+    `;
 }
 
 // ============================================================
@@ -1650,6 +1691,18 @@ function updateClock() {
     document.getElementById('header-date').textContent = now.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+function initPortus() {
+    const now = new Date();
+    const from = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+    const pad = n => String(n).padStart(2, '0');
+    const fromStr = `${from.getFullYear()}${pad(from.getMonth()+1)}${pad(from.getDate())}%40${pad(from.getHours())}00`;
+    const base = `https://portus.puertos.es/PortusData/rtChart?station=2838&isRadar=false&locale=es&scroll=true&from=${fromStr}`;
+    document.getElementById('portus-waves').src = base + '&params=Hm0,Hmax&dirParams=';
+    document.getElementById('portus-period').src = base + '&params=Tm02,Tp&dirParams=';
+    document.getElementById('portus-temp').src = base + '&params=WaterTemp&dirParams=';
+    document.getElementById('portus-wind').src = base + '&params=WindSpeed,WindGust&dirParams=WindDir';
+}
+
 function setStatus(text, ok = true) {
     document.getElementById('status-text').textContent = text;
     document.getElementById('status-dot').className = ok ? 'status-dot' : 'status-dot error';
@@ -1698,6 +1751,8 @@ async function init() {
     renderWebcams();
     setupTabs();
     setupNav();
+    initPortus();
+    loadWindguru();
 
     await loadAllData();
     setInterval(loadAllData, REFRESH_INTERVAL);
