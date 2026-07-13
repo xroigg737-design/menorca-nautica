@@ -9,6 +9,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0c2340">
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -904,7 +907,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.0</div>
+        <div>Bufa a Menorca? &mdash; v3.1</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1755,6 +1758,10 @@ async function init() {
 }
 
 init();
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+}
 </script>
 
 </body>
