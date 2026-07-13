@@ -905,7 +905,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.7</div>
+        <div>Bufa a Menorca? &mdash; v2.8</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -936,12 +936,8 @@ const STATIONS = [
 const METEOCLIMATIC_MATCH = {
     'ESIBA0700000307701A': { stationId: 'mao', name: 'Maó' },
     'ESIBA0700000307760A': { stationId: 'ciutadella', name: 'Ciutadella de Menorca' },
-    'ESIBA0700000307769A': { stationId: null, name: 'Cala Morell', lat: 40.05, lon: 3.89, desc: 'Costa nord-oest · Meteoclimatic' },
-    'ESIBA0700000307712A': { stationId: null, name: 'Llucmaçanes', lat: 39.87, lon: 4.22, desc: 'Interior · Meteoclimatic' },
-    'ESIBA0700000307712B': { stationId: null, name: 'Sant Climent', lat: 39.87, lon: 4.17, desc: 'Interior sud · Meteoclimatic' },
-    'ESIBA0700000307712C': { stationId: null, name: 'Llucmaçanes (2)', lat: 39.87, lon: 4.22, desc: 'Interior · Meteoclimatic' },
-    'ESIBA0700000307710A': { stationId: null, name: 'Sant Lluís', lat: 39.85, lon: 4.25, desc: 'Costa sud-est · Meteoclimatic' },
-    'ESIBA0700000307710B': { stationId: null, name: 'Sant Lluís (2)', lat: 39.85, lon: 4.26, desc: 'Costa sud-est · Meteoclimatic' },
+    'ESIBA0700000307769A': { stationId: 'cala-morell', name: 'Cala Morell' },
+    'ESIBA0700000307710A': { stationId: 'punta-prima', name: 'Sant Lluís' },
 };
 
 const WINDGURU_SPOTS = [
