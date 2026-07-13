@@ -1,0 +1,22 @@
+{
+    "name": "Bufa a Menorca?",
+    "short_name": "Bufa Menorca",
+    "description": "Condicions nàutiques en temps real a Menorca",
+    "start_url": "/menorca-nautica/",
+    "display": "standalone",
+    "background_color": "#0c2340",
+    "theme_color": "#0c2340",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "img/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

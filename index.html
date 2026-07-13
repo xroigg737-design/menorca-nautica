@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bufa a Menorca?</title>
+    <meta name="description" content="Condicions nàutiques en temps real a Menorca: vent, onatge, webcams i predicció">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0c2340">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --blue-deep: #0c2340;
+            --blue-navy: #1a3a5c;
+            --blue-main: #1a5276;
+            --blue-mid: #2980b9;
+            --blue-light: #5dade2;
+            --blue-pale: #d6eaf8;
+            --blue-bg: #f0f6fc;
+            --turquoise: #1abc9c;
+            --white: #ffffff;
+            --gray-light: #f8f9fa;
+            --gray: #95a5a6;
+            --gray-dark: #6c757d;
+            --text: #1a2332;
+            --text-light: #5a6a7a;
+            --shadow: 0 2px 12px rgba(12, 35, 64, 0.08);
+            --shadow-hover: 0 4px 20px rgba(12, 35, 64, 0.14);
+            --radius: 12px;
+            --wind-calm: #88d8b0;
+            --wind-light: #4ecdc4;
+            --wind-moderate: #45b7d1;
+            --wind-fresh: #f9ca24;
+            --wind-strong: #f0932b;
+            --wind-vstrong: #eb4d4b;
+            --wind-gale: #9b59b6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--blue-bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === HEADER === */
+        header {
+            background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-navy) 40%, var(--blue-mid) 100%);
+            color: white;
+            padding: 1.5rem 1rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: var(--blue-bg);
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .app-title span {
+            color: var(--blue-light);
+        }
+        .header-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            text-align: right;
+        }
+        .header-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+        .header-wave {
+            position: absolute;
+            bottom: 28px;
+            left: 0;
+            width: 200%;
+            height: 20px;
+            opacity: 0.1;
+            animation: wave-slide 8s linear infinite;
+        }
+        .header-wave path { fill: white; }
+        @keyframes wave-slide {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* === NAV === */
+        nav {
+            background: var(--white);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-inner::-webkit-scrollbar { display: none; }
+        .nav-inner a {
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .nav-inner a:hover, .nav-inner a.active {
+            color: var(--blue-mid);
+            border-bottom-color: var(--blue-mid);
+        }
+
+        /* === SECTIONS === */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        section {
+            margin-bottom: 2rem;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--blue-deep);
+            margin: 1.5rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 1.2em;
+            background: var(--blue-mid);
+            border-radius: 2px;
+        }
+
+        /* === MAP === */
+        #map {
+            height: 400px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1;
+        }
+        .wind-marker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+        .wind-arrow {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.5s ease;
+        }
+        .wind-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text);
+            background: rgba(255,255,255,0.9);
+            padding: 1px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* === STATION CARDS === */
+        .stations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+        .station-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.2s, transform 0.2s;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .station-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+        .station-card .wind-stripe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        .station-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+        }
+        .station-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--blue-deep);
+        }
+        .station-desc {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+        .station-compass {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+        .station-data {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .data-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .data-label {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .data-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .data-value.wind-speed {
+            font-size: 1.5rem;
+        }
+        .data-value .unit {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-light);
+        }
+        .wind-name-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--blue-pale);
+            color: var(--blue-main);
+            margin-top: 4px;
+        }
+
+        /* === MARINE === */
+        .marine-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .marine-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .marine-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .marine-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--blue-deep);
+        }
+        .marine-value .unit {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-light);
+        }
+        .marine-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+        }
+
+        /* === WEBCAMS === */
+        .webcams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .webcam-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .webcam-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+        .webcam-preview {
+            height: 160px;
+            background: linear-gradient(135deg, var(--blue-navy) 0%, var(--blue-mid) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .webcam-preview .play-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .webcam-preview .play-icon::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 16px solid white;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            margin-left: 3px;
+        }
+        .webcam-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #e74c3c;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .webcam-info {
+            padding: 1rem;
+        }
+        .webcam-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--blue-deep);
+        }
+        .webcam-location {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+        .webcam-source {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        /* === FORECAST TABS === */
+        .forecast-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--white);
+            border-radius: var(--radius) var(--radius) 0 0;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .forecast-tabs::-webkit-scrollbar { display: none; }
+        .forecast-tab {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            background: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .forecast-tab:hover { color: var(--blue-mid); }
+        .forecast-tab.active {
+            color: var(--blue-mid);
+            border-bottom-color: var(--blue-mid);
+        }
+        .forecast-panel {
+            background: var(--white);
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            min-height: 400px;
+            display: none;
+        }
+        .forecast-panel.active { display: block; }
+        .forecast-panel iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
+
+        /* === FORECAST TABLE === */
+        .forecast-table-wrap {
+            overflow-x: auto;
+            padding: 0.5rem;
+        }
+        .forecast-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .forecast-table th {
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--blue-pale);
+            white-space: nowrap;
+        }
+        .forecast-table td {
+            padding: 0.5rem 0.8rem;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+        }
+        .forecast-table tr:hover td {
+            background: var(--blue-bg);
+        }
+        .forecast-table .day-separator td {
+            background: var(--blue-pale);
+            font-weight: 700;
+            color: var(--blue-deep);
+            font-size: 0.8rem;
+        }
+        .dir-arrow-small {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            vertical-align: middle;
+            margin-right: 2px;
+        }
+
+        /* === FOOTER === */
+        footer {
+            background: var(--blue-deep);
+            color: rgba(255,255,255,0.6);
+            padding: 2rem 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+        }
+        footer a {
+            color: var(--blue-light);
+            text-decoration: none;
+        }
+
+        /* === STATUS BAR === */
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--turquoise);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .status-dot.error { background: #e74c3c; animation: none; }
+
+        /* === LOADING === */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--blue-pale);
+            border-top-color: var(--blue-mid);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1rem 2rem; }
+            .app-title { font-size: 1.4rem; }
+            .header-subtitle { font-size: 0.85rem; }
+            #map { height: 300px; }
+            .stations-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+            .marine-grid { grid-template-columns: repeat(2, 1fr); }
+            .webcams-grid { grid-template-columns: 1fr; }
+            .forecast-panel iframe { height: 350px; }
+        }
+        @media (max-width: 480px) {
+            .stations-grid { grid-template-columns: 1fr; }
+            .marine-grid { grid-template-columns: repeat(2, 1fr); }
+            .nav-inner a { padding: 0.7rem 0.75rem; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <svg class="header-wave" viewBox="0 0 1200 20" preserveAspectRatio="none">
+            <path d="M0,10 C150,0 350,20 600,10 C850,0 1050,20 1200,10 L1200,20 L0,20 Z"/>
+        </svg>
+        <div class="header-content">
+            <div class="header-top">
+                <div>
+                    <div class="app-title">Bufa a <span>Menorca</span>?</div>
+                    <div class="header-subtitle">Condicions nàutiques en temps real</div>
+                </div>
+                <div class="header-meta">
+                    <div id="header-time">--:--</div>
+                    <div id="header-date"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="#mapa" class="active">Mapa</a>
+            <a href="#estacions">Estacions</a>
+            <a href="#marine">Mar</a>
+            <a href="#webcams">Webcams</a>
+            <a href="#prediccio">Predicció</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- MAP SECTION -->
+        <section id="mapa">
+            <h2 class="section-title">Mapa de vent</h2>
+            <div id="map"></div>
+            <div class="status-bar">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">Carregant dades...</span>
+            </div>
+        </section>
+
+        <!-- STATIONS SECTION -->
+        <section id="estacions">
+            <h2 class="section-title">Estacions costaneres</h2>
+            <div class="stations-grid" id="stations-grid">
+                <div class="loading"><div class="spinner"></div> Carregant estacions...</div>
+            </div>
+        </section>
+
+        <!-- MARINE SECTION -->
+        <section id="marine">
+            <h2 class="section-title">Condicions marines</h2>
+            <div class="marine-grid" id="marine-grid">
+                <div class="loading"><div class="spinner"></div> Carregant dades marines...</div>
+            </div>
+        </section>
+
+        <!-- WEBCAMS SECTION -->
+        <section id="webcams">
+            <h2 class="section-title">Webcams de costa</h2>
+            <div class="webcams-grid" id="webcams-grid"></div>
+        </section>
+
+        <!-- FORECAST SECTION -->
+        <section id="prediccio">
+            <h2 class="section-title">Predicció</h2>
+            <div class="forecast-tabs" id="forecast-tabs">
+                <button class="forecast-tab active" data-tab="windy">Windy</button>
+                <button class="forecast-tab" data-tab="hourly">Horària</button>
+                <button class="forecast-tab" data-tab="marine-fc">Onatge</button>
+                <button class="forecast-tab" data-tab="pressure">Pressió</button>
+            </div>
+            <div class="forecast-panel active" id="panel-windy">
+                <iframe src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricWind=kt&metricTemp=%C2%B0C&zoom=10&lat=39.95&lon=4.08&pressure=true&model=ecmwf&marker=true&calendar=now&message=true" loading="lazy"></iframe>
+            </div>
+            <div class="forecast-panel" id="panel-hourly">
+                <div class="forecast-table-wrap" id="hourly-table">
+                    <div class="loading"><div class="spinner"></div> Carregant predicció horària...</div>
+                </div>
+            </div>
+            <div class="forecast-panel" id="panel-marine-fc">
+                <div class="forecast-table-wrap" id="marine-fc-table">
+                    <div class="loading"><div class="spinner"></div> Carregant predicció d'onatge...</div>
+                </div>
+            </div>
+            <div class="forecast-panel" id="panel-pressure">
+                <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricWind=kt&metricTemp=%C2%B0C&zoom=4&lat=42&lon=4&overlay=pressure&pressure=true&model=ecmwf" loading="lazy"></iframe>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <div>Bufa a Menorca? &mdash; v1.0</div>
+        <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a></div>
+        <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
+    </footer>
+
+<script>
+// ============================================================
+// CONFIGURATION
+// ============================================================
+
+const STATIONS = [
+    { id: 'mao', name: 'Port de Maó', lat: 39.8883, lon: 4.2656, desc: 'Costa est · Port principal' },
+    { id: 'la-mola', name: 'La Mola', lat: 39.8900, lon: 4.3150, desc: 'Punta est · Exposat' },
+    { id: 'addaia', name: 'Addaia', lat: 40.0217, lon: 4.2006, desc: 'Costa nord-est' },
+    { id: 'fornells', name: 'Fornells', lat: 40.0547, lon: 4.1342, desc: 'Costa nord · Windsurf' },
+    { id: 'cavalleria', name: 'Cap de Cavalleria', lat: 40.0831, lon: 4.0906, desc: 'Punt més septentrional' },
+    { id: 'ciutadella', name: 'Ciutadella', lat: 40.0003, lon: 3.8367, desc: 'Costa oest · Port' },
+    { id: 'artrutx', name: "Cap d'Artrutx", lat: 39.9208, lon: 3.8156, desc: 'Punta sud-oest' },
+    { id: 'son-bou', name: 'Son Bou', lat: 39.9006, lon: 4.0711, desc: 'Costa sud' },
+    { id: 'aeroport', name: 'Aeroport', lat: 39.8625, lon: 4.2186, desc: 'Estació AEMET referència' },
+];
+
+const MARINE_POINT = { lat: 39.80, lon: 4.10 };
+
+const WEBCAMS = [
+    { name: 'Port de Maó', location: 'Costa est', source: 'YouTube Live', url: 'https://www.youtube.com/watch?v=sacX9Kb8g8M', gradient: 'linear-gradient(135deg, #0c2340, #1a5276)' },
+    { name: 'Port de Maó (2)', location: 'Costa est', source: 'YouTube Live', url: 'https://www.youtube.com/watch?v=E3b_OXXo5ls', gradient: 'linear-gradient(135deg, #1a3a5c, #2980b9)' },
+    { name: 'Club Marítimo de Mahón', location: 'Port de Maó', source: 'Club Marítimo', url: 'https://www.clubmaritimomahon.com/es/web-cam', gradient: 'linear-gradient(135deg, #1a5276, #1abc9c)' },
+    { name: 'Monte Toro / Es Mercadal', location: 'Centre illa · Vista panoràmica', source: 'Windy', url: 'https://www.windy.com/webcams/1574355774', gradient: 'linear-gradient(135deg, #2c3e50, #3498db)' },
+    { name: 'Cala Morell', location: 'Costa nord-oest', source: 'Windy', url: 'https://www.windy.com/webcams/1249041258', gradient: 'linear-gradient(135deg, #0c2340, #2980b9)' },
+    { name: 'Real Aeroclub de Mahón', location: 'Maó', source: 'Windy', url: 'https://www.windy.com/webcams/1316273438', gradient: 'linear-gradient(135deg, #1a3a5c, #5dade2)' },
+    { name: 'Badia de Fornells', location: 'Costa nord', source: 'Webcam turística', url: 'https://www.skylinewebcams.com/es/webcam/espana/islas-baleares/menorca.html', gradient: 'linear-gradient(135deg, #1a5276, #45b7d1)' },
+    { name: 'Ciutadella', location: 'Plaça des Born', source: 'Webcam turística', url: 'https://www.meteoblue.com/en/weather/webcams/minorca_spain_2513925', gradient: 'linear-gradient(135deg, #2c3e50, #1abc9c)' },
+];
+
+const WIND_NAMES = ['Tramuntana', 'Gregal', 'Llevant', 'Xaloc', 'Migjorn', 'Garbí', 'Ponent', 'Mestral'];
+const WIND_ABBR = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+const WMO_ICONS = {
+    0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+    45: '🌫️', 48: '🌫️',
+    51: '🌦️', 53: '🌦️', 55: '🌧️',
+    61: '🌧️', 63: '🌧️', 65: '🌧️',
+    71: '🌨️', 73: '🌨️', 75: '🌨️',
+    80: '🌦️', 81: '🌧️', 82: '🌧️',
+    95: '⛈️', 96: '⛈️', 99: '⛈️',
+};
+
+const REFRESH_INTERVAL = 5 * 60 * 1000;
+
+// ============================================================
+// UTILITIES
+// ============================================================
+
+function getWindName(deg) {
+    return WIND_NAMES[Math.round(deg / 45) % 8];
+}
+function getWindAbbr(deg) {
+    return WIND_ABBR[Math.round(deg / 45) % 8];
+}
+
+function getWindColor(knots) {
+    if (knots < 5) return 'var(--wind-calm)';
+    if (knots < 10) return 'var(--wind-light)';
+    if (knots < 15) return 'var(--wind-moderate)';
+    if (knots < 20) return 'var(--wind-fresh)';
+    if (knots < 25) return 'var(--wind-strong)';
+    if (knots < 30) return 'var(--wind-vstrong)';
+    return 'var(--wind-gale)';
+}
+
+function getWindColorHex(knots) {
+    if (knots < 5) return '#88d8b0';
+    if (knots < 10) return '#4ecdc4';
+    if (knots < 15) return '#45b7d1';
+    if (knots < 20) return '#f9ca24';
+    if (knots < 25) return '#f0932b';
+    if (knots < 30) return '#eb4d4b';
+    return '#9b59b6';
+}
+
+function getWmoIcon(code) {
+    return WMO_ICONS[code] || '🌤️';
+}
+
+function compassSVG(direction, size, color) {
+    const rad = (direction - 90) * Math.PI / 180;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 48 48">
+        <circle cx="24" cy="24" r="22" fill="none" stroke="#e0e0e0" stroke-width="1.5"/>
+        <text x="24" y="8" text-anchor="middle" font-size="7" fill="#aaa" font-weight="600">N</text>
+        <text x="24" y="44" text-anchor="middle" font-size="7" fill="#aaa" font-weight="600">S</text>
+        <text x="5" y="27" text-anchor="middle" font-size="7" fill="#aaa" font-weight="600">W</text>
+        <text x="43" y="27" text-anchor="middle" font-size="7" fill="#aaa" font-weight="600">E</text>
+        <line x1="24" y1="24" x2="${24 + 16 * Math.cos(rad)}" y2="${24 + 16 * Math.sin(rad)}"
+              stroke="${color}" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="3" fill="${color}"/>
+    </svg>`;
+}
+
+function windArrowSVG(direction, color, size) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 32 32" style="transform:rotate(${direction}deg)">
+        <polygon points="16,4 22,24 16,20 10,24" fill="${color}" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>`;
+}
+
+function dirArrowSmallSVG(direction, color) {
+    return `<svg class="dir-arrow-small" viewBox="0 0 14 14" style="transform:rotate(${direction}deg)">
+        <polygon points="7,1 10,11 7,9 4,11" fill="${color}" stroke="white" stroke-width="0.5"/>
+    </svg>`;
+}
+
+function formatTime(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDayHeader(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+// ============================================================
+// DATA FETCHING
+// ============================================================
+
+async function fetchStationData() {
+    const lats = STATIONS.map(s => s.lat).join(',');
+    const lons = STATIONS.map(s => s.lon).join(',');
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
+        `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code,pressure_msl` +
+        `&wind_speed_unit=kn&timezone=Europe/Madrid`;
+
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (Array.isArray(data)) {
+        return data.map((d, i) => ({
+            ...STATIONS[i],
+            wind: d.current.wind_speed_10m,
+            dir: d.current.wind_direction_10m,
+            gusts: d.current.wind_gusts_10m,
+            temp: d.current.temperature_2m,
+            feelsLike: d.current.apparent_temperature,
+            humidity: d.current.relative_humidity_2m,
+            pressure: d.current.pressure_msl,
+            wmo: d.current.weather_code,
+            time: d.current.time,
+        }));
+    }
+    return [{
+        ...STATIONS[0],
+        wind: data.current.wind_speed_10m,
+        dir: data.current.wind_direction_10m,
+        gusts: data.current.wind_gusts_10m,
+        temp: data.current.temperature_2m,
+        feelsLike: data.current.apparent_temperature,
+        humidity: data.current.relative_humidity_2m,
+        pressure: data.current.pressure_msl,
+        wmo: data.current.weather_code,
+        time: data.current.time,
+    }];
+}
+
+async function fetchMarineData() {
+    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${MARINE_POINT.lat}&longitude=${MARINE_POINT.lon}` +
+        `&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_period,swell_wave_height,swell_wave_period,swell_wave_direction` +
+        `&timezone=Europe/Madrid`;
+    const resp = await fetch(url);
+    return await resp.json();
+}
+
+async function fetchHourlyForecast() {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=39.95&longitude=4.08` +
+        `&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation_probability,weather_code` +
+        `&wind_speed_unit=kn&timezone=Europe/Madrid&forecast_days=3`;
+    const resp = await fetch(url);
+    return await resp.json();
+}
+
+async function fetchMarineForecast() {
+    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${MARINE_POINT.lat}&longitude=${MARINE_POINT.lon}` +
+        `&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_period,swell_wave_height,swell_wave_period,swell_wave_direction` +
+        `&timezone=Europe/Madrid&forecast_days=3`;
+    const resp = await fetch(url);
+    return await resp.json();
+}
+
+// ============================================================
+// MAP
+// ============================================================
+
+let map, markers = [];
+
+function initMap() {
+    map = L.map('map', { zoomControl: true }).setView([39.97, 4.08], 11);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 16
+    }).addTo(map);
+}
+
+function updateMap(stationsData) {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    stationsData.forEach(s => {
+        const color = getWindColorHex(s.wind);
+        const icon = L.divIcon({
+            className: 'wind-marker',
+            html: `
+                ${windArrowSVG(s.dir, color, 32)}
+                <div class="wind-label">${Math.round(s.wind)} kn</div>
+            `,
+            iconSize: [40, 50],
+            iconAnchor: [20, 25],
+        });
+
+        const marker = L.marker([s.lat, s.lon], { icon }).addTo(map);
+        marker.bindPopup(`
+            <div style="font-family:system-ui;min-width:150px">
+                <strong>${s.name}</strong><br>
+                <span style="color:#666;font-size:12px">${s.desc}</span>
+                <hr style="margin:6px 0;border:none;border-top:1px solid #eee">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:13px">
+                    <div><strong>${Math.round(s.wind)} kn</strong> vent</div>
+                    <div><strong>${Math.round(s.gusts)} kn</strong> ràfega</div>
+                    <div><strong>${getWindName(s.dir)}</strong> (${Math.round(s.dir)}°)</div>
+                    <div><strong>${s.temp}°C</strong></div>
+                </div>
+            </div>
+        `);
+        markers.push(marker);
+    });
+}
+
+// ============================================================
+// STATION CARDS
+// ============================================================
+
+function renderStations(stationsData) {
+    const grid = document.getElementById('stations-grid');
+    grid.innerHTML = stationsData.map(s => {
+        const color = getWindColor(s.wind);
+        const colorHex = getWindColorHex(s.wind);
+        return `
+        <div class="station-card">
+            <div class="wind-stripe" style="background:${color}"></div>
+            <div class="station-header">
+                <div>
+                    <div class="station-name">${s.name}</div>
+                    <div class="station-desc">${s.desc}</div>
+                </div>
+                ${compassSVG(s.dir, 48, colorHex)}
+            </div>
+            <div class="station-data">
+                <div class="data-item">
+                    <div class="data-label">Vent</div>
+                    <div class="data-value wind-speed" style="color:${color}">${Math.round(s.wind)} <span class="unit">kn</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Ràfega</div>
+                    <div class="data-value">${Math.round(s.gusts)} <span class="unit">kn</span></div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Direcció</div>
+                    <div class="data-value">${Math.round(s.dir)}°</div>
+                    <div class="wind-name-tag">${getWindName(s.dir)}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Temperatura</div>
+                    <div class="data-value">${s.temp} <span class="unit">°C</span></div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+// MARINE CONDITIONS
+// ============================================================
+
+function renderMarine(data) {
+    const c = data.current;
+    const grid = document.getElementById('marine-grid');
+    grid.innerHTML = `
+        <div class="marine-card">
+            <div class="marine-icon">🌊</div>
+            <div class="marine-value">${c.wave_height} <span class="unit">m</span></div>
+            <div class="marine-label">Alçada d'ona</div>
+        </div>
+        <div class="marine-card">
+            <div class="marine-icon">⏱️</div>
+            <div class="marine-value">${c.wave_period} <span class="unit">s</span></div>
+            <div class="marine-label">Període</div>
+        </div>
+        <div class="marine-card">
+            <div class="marine-icon">🧭</div>
+            <div class="marine-value">${getWindAbbr(c.wave_direction)}</div>
+            <div class="marine-label">Direcció onatge (${Math.round(c.wave_direction)}°)</div>
+        </div>
+        <div class="marine-card">
+            <div class="marine-icon">💨</div>
+            <div class="marine-value">${c.wind_wave_height} <span class="unit">m</span></div>
+            <div class="marine-label">Ona de vent</div>
+        </div>
+        <div class="marine-card">
+            <div class="marine-icon">〰️</div>
+            <div class="marine-value">${c.swell_wave_height} <span class="unit">m</span></div>
+            <div class="marine-label">Swell</div>
+        </div>
+        <div class="marine-card">
+            <div class="marine-icon">🔄</div>
+            <div class="marine-value">${c.swell_wave_period} <span class="unit">s</span></div>
+            <div class="marine-label">Període swell</div>
+        </div>
+    `;
+}
+
+// ============================================================
+// WEBCAMS
+// ============================================================
+
+function renderWebcams() {
+    const grid = document.getElementById('webcams-grid');
+    grid.innerHTML = WEBCAMS.map(w => `
+        <a class="webcam-card" href="${w.url}" target="_blank" rel="noopener">
+            <div class="webcam-preview" style="background:${w.gradient}">
+                <div class="play-icon"></div>
+                <div class="webcam-badge">Live</div>
+            </div>
+            <div class="webcam-info">
+                <div class="webcam-name">${w.name}</div>
+                <div class="webcam-location">${w.location}</div>
+                <div class="webcam-source">${w.source}</div>
+            </div>
+        </a>
+    `).join('');
+}
+
+// ============================================================
+// FORECAST TABLES
+// ============================================================
+
+function renderHourlyForecast(data) {
+    const h = data.hourly;
+    const now = new Date();
+    let currentDay = '';
+    let html = '<table class="forecast-table"><thead><tr>' +
+        '<th>Hora</th><th></th><th>Vent</th><th>Dir</th><th>Ràfega</th><th>Temp</th><th>Pluja</th>' +
+        '</tr></thead><tbody>';
+
+    for (let i = 0; i < h.time.length; i++) {
+        const t = new Date(h.time[i]);
+        if (t < now && t.getHours() !== now.getHours()) continue;
+
+        const day = t.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+        if (day !== currentDay) {
+            currentDay = day;
+            html += `<tr class="day-separator"><td colspan="7">${day.charAt(0).toUpperCase() + day.slice(1)}</td></tr>`;
+        }
+
+        const windColor = getWindColorHex(h.wind_speed_10m[i]);
+        html += `<tr>
+            <td><strong>${t.getHours().toString().padStart(2, '0')}:00</strong></td>
+            <td>${getWmoIcon(h.weather_code[i])}</td>
+            <td style="color:${windColor};font-weight:700">${Math.round(h.wind_speed_10m[i])} kn</td>
+            <td>${dirArrowSmallSVG(h.wind_direction_10m[i], windColor)} ${getWindAbbr(h.wind_direction_10m[i])}</td>
+            <td>${Math.round(h.wind_gusts_10m[i])} kn</td>
+            <td>${h.temperature_2m[i]}°</td>
+            <td>${h.precipitation_probability[i]}%</td>
+        </tr>`;
+    }
+    html += '</tbody></table>';
+    document.getElementById('hourly-table').innerHTML = html;
+}
+
+function renderMarineForecast(data) {
+    const h = data.hourly;
+    const now = new Date();
+    let currentDay = '';
+    let html = '<table class="forecast-table"><thead><tr>' +
+        '<th>Hora</th><th>Ona</th><th>Període</th><th>Dir</th><th>Ona vent</th><th>Swell</th><th>Dir swell</th>' +
+        '</tr></thead><tbody>';
+
+    for (let i = 0; i < h.time.length; i++) {
+        const t = new Date(h.time[i]);
+        if (t < now && t.getHours() !== now.getHours()) continue;
+
+        const day = t.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+        if (day !== currentDay) {
+            currentDay = day;
+            html += `<tr class="day-separator"><td colspan="7">${day.charAt(0).toUpperCase() + day.slice(1)}</td></tr>`;
+        }
+
+        const waveColor = h.wave_height[i] > 2 ? '#eb4d4b' : h.wave_height[i] > 1 ? '#f0932b' : '#45b7d1';
+        html += `<tr>
+            <td><strong>${t.getHours().toString().padStart(2, '0')}:00</strong></td>
+            <td style="color:${waveColor};font-weight:700">${h.wave_height[i]} m</td>
+            <td>${h.wave_period[i]} s</td>
+            <td>${dirArrowSmallSVG(h.wave_direction[i], '#45b7d1')} ${getWindAbbr(h.wave_direction[i])}</td>
+            <td>${h.wind_wave_height[i]} m</td>
+            <td>${h.swell_wave_height[i]} m</td>
+            <td>${dirArrowSmallSVG(h.swell_wave_direction[i], '#9b59b6')} ${getWindAbbr(h.swell_wave_direction[i])}</td>
+        </tr>`;
+    }
+    html += '</tbody></table>';
+    document.getElementById('marine-fc-table').innerHTML = html;
+}
+
+// ============================================================
+// TABS & NAV
+// ============================================================
+
+function setupTabs() {
+    document.querySelectorAll('.forecast-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.forecast-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.forecast-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+        });
+    });
+}
+
+function setupNav() {
+    const links = document.querySelectorAll('.nav-inner a');
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                links.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            }
+        });
+    });
+
+    const sections = document.querySelectorAll('section[id]');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                links.forEach(l => l.classList.remove('active'));
+                const active = document.querySelector(`.nav-inner a[href="#${entry.target.id}"]`);
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+
+function updateClock() {
+    const now = new Date();
+    document.getElementById('header-time').textContent = now.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('header-date').textContent = now.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function setStatus(text, ok = true) {
+    document.getElementById('status-text').textContent = text;
+    document.getElementById('status-dot').className = ok ? 'status-dot' : 'status-dot error';
+}
+
+// ============================================================
+// MAIN
+// ============================================================
+
+async function loadAllData() {
+    setStatus('Actualitzant dades...');
+
+    try {
+        const [stationsData, marineData, hourlyData, marineFcData] = await Promise.all([
+            fetchStationData(),
+            fetchMarineData(),
+            fetchHourlyForecast(),
+            fetchMarineForecast(),
+        ]);
+
+        updateMap(stationsData);
+        renderStations(stationsData);
+        renderMarine(marineData);
+        renderHourlyForecast(hourlyData);
+        renderMarineForecast(marineFcData);
+
+        const time = new Date().toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        setStatus(`Última actualització: ${time}`, true);
+    } catch (err) {
+        console.error('Error loading data:', err);
+        setStatus('Error carregant dades. Reintentant...', false);
+    }
+}
+
+async function init() {
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    initMap();
+    renderWebcams();
+    setupTabs();
+    setupNav();
+
+    await loadAllData();
+    setInterval(loadAllData, REFRESH_INTERVAL);
+}
+
+init();
+</script>
+
+</body>
+</html>
