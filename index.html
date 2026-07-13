@@ -84,9 +84,7 @@
             font-weight: 800;
             letter-spacing: -0.5px;
         }
-        .app-title span {
-            color: var(--blue-light);
-        }
+        .app-title span { color: var(--blue-light); }
         .header-meta {
             font-size: 0.8rem;
             opacity: 0.7;
@@ -145,14 +143,8 @@
         }
 
         /* === SECTIONS === */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        section {
-            margin-bottom: 2rem;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+        section { margin-bottom: 2rem; }
         .section-title {
             font-size: 1.2rem;
             font-weight: 700;
@@ -183,11 +175,6 @@
             align-items: center;
             gap: 1px;
         }
-        .wind-arrow {
-            width: 32px;
-            height: 32px;
-            transition: transform 0.5s ease;
-        }
         .wind-label {
             font-size: 10px;
             font-weight: 700;
@@ -198,6 +185,10 @@
             white-space: nowrap;
             text-align: center;
             line-height: 1.2;
+        }
+        .wind-label.real-station {
+            border: 1.5px solid var(--turquoise);
+            background: rgba(255,255,255,0.95);
         }
 
         /* === STATION CARDS === */
@@ -222,9 +213,7 @@
         }
         .station-card .wind-stripe {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 4px;
         }
         .station-header {
@@ -243,38 +232,21 @@
             color: var(--text-light);
             margin-top: 2px;
         }
-        .station-compass {
-            width: 48px;
-            height: 48px;
-            flex-shrink: 0;
-        }
         .station-data {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
         }
-        .data-item {
-            display: flex;
-            flex-direction: column;
-        }
+        .data-item { display: flex; flex-direction: column; }
         .data-label {
             font-size: 0.7rem;
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .data-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-        .data-value.wind-speed {
-            font-size: 1.5rem;
-        }
-        .data-value .unit {
-            font-size: 0.7rem;
-            font-weight: 400;
-            color: var(--text-light);
-        }
+        .data-value { font-size: 1.1rem; font-weight: 700; }
+        .data-value.wind-speed { font-size: 1.5rem; }
+        .data-value .unit { font-size: 0.7rem; font-weight: 400; color: var(--text-light); }
         .wind-name-tag {
             display: inline-block;
             font-size: 0.7rem;
@@ -285,11 +257,32 @@
             color: var(--blue-main);
             margin-top: 4px;
         }
+        .source-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .source-badge.real {
+            background: rgba(26, 188, 156, 0.15);
+            color: #16a085;
+            border: 1px solid rgba(26, 188, 156, 0.3);
+        }
+        .source-badge.model {
+            background: rgba(41, 128, 185, 0.1);
+            color: var(--blue-mid);
+            border: 1px solid rgba(41, 128, 185, 0.2);
+        }
 
         /* === MARINE === */
         .marine-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 1rem;
         }
         .marine-card {
@@ -299,24 +292,34 @@
             box-shadow: var(--shadow);
             text-align: center;
         }
-        .marine-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
+        .marine-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .marine-value { font-size: 1.8rem; font-weight: 800; color: var(--blue-deep); }
+        .marine-value .unit { font-size: 0.9rem; font-weight: 400; color: var(--text-light); }
+        .marine-label { font-size: 0.8rem; color: var(--text-light); margin-top: 0.3rem; }
+
+        .portus-section {
+            margin-top: 1.5rem;
         }
-        .marine-value {
-            font-size: 1.8rem;
-            font-weight: 800;
+        .portus-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .portus-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .portus-card h4 {
+            padding: 0.8rem 1rem 0.4rem;
+            font-size: 0.85rem;
             color: var(--blue-deep);
         }
-        .marine-value .unit {
-            font-size: 0.9rem;
-            font-weight: 400;
-            color: var(--text-light);
-        }
-        .marine-label {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 0.3rem;
+        .portus-card iframe {
+            width: 100%;
+            height: 220px;
+            border: none;
         }
 
         /* === WEBCAMS === */
@@ -348,8 +351,7 @@
             position: relative;
         }
         .webcam-preview .play-icon {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             background: rgba(255,255,255,0.2);
             border-radius: 50%;
             display: flex;
@@ -359,8 +361,7 @@
         }
         .webcam-preview .play-icon::after {
             content: '';
-            width: 0;
-            height: 0;
+            width: 0; height: 0;
             border-left: 16px solid white;
             border-top: 10px solid transparent;
             border-bottom: 10px solid transparent;
@@ -368,8 +369,7 @@
         }
         .webcam-badge {
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: 8px; right: 8px;
             background: #e74c3c;
             color: white;
             font-size: 0.65rem;
@@ -379,24 +379,10 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .webcam-info {
-            padding: 1rem;
-        }
-        .webcam-name {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--blue-deep);
-        }
-        .webcam-location {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 2px;
-        }
-        .webcam-source {
-            font-size: 0.7rem;
-            color: var(--gray);
-            margin-top: 4px;
-        }
+        .webcam-info { padding: 1rem; }
+        .webcam-name { font-weight: 700; font-size: 0.95rem; color: var(--blue-deep); }
+        .webcam-location { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
+        .webcam-source { font-size: 0.7rem; color: var(--gray); margin-top: 4px; }
 
         /* === FORECAST TABS === */
         .forecast-tabs {
@@ -410,7 +396,7 @@
         }
         .forecast-tabs::-webkit-scrollbar { display: none; }
         .forecast-tab {
-            padding: 0.8rem 1.5rem;
+            padding: 0.8rem 1.2rem;
             border: none;
             background: none;
             font-size: 0.85rem;
@@ -441,16 +427,42 @@
             border-radius: 0 0 var(--radius) var(--radius);
         }
 
-        /* === FORECAST TABLE === */
-        .forecast-table-wrap {
-            overflow-x: auto;
-            padding: 0.5rem;
+        /* === WINDGURU === */
+        .windguru-container {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
-        .forecast-table {
-            width: 100%;
-            border-collapse: collapse;
+        .windguru-spot {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .windguru-spot-header {
+            padding: 0.6rem 1rem;
+            background: var(--blue-bg);
+            font-weight: 700;
             font-size: 0.85rem;
+            color: var(--blue-deep);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .windguru-spot-header a {
+            font-size: 0.75rem;
+            color: var(--blue-mid);
+            text-decoration: none;
+        }
+        .windguru-spot-header a:hover { text-decoration: underline; }
+        .windguru-widget {
+            min-height: 120px;
+            overflow-x: auto;
+        }
+
+        /* === FORECAST TABLE === */
+        .forecast-table-wrap { overflow-x: auto; padding: 0.5rem; }
+        .forecast-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .forecast-table th {
             padding: 0.6rem 0.8rem;
             text-align: left;
@@ -467,9 +479,7 @@
             border-bottom: 1px solid #f0f0f0;
             white-space: nowrap;
         }
-        .forecast-table tr:hover td {
-            background: var(--blue-bg);
-        }
+        .forecast-table tr:hover td { background: var(--blue-bg); }
         .forecast-table .day-separator td {
             background: var(--blue-pale);
             font-weight: 700;
@@ -478,8 +488,7 @@
         }
         .dir-arrow-small {
             display: inline-block;
-            width: 14px;
-            height: 14px;
+            width: 14px; height: 14px;
             vertical-align: middle;
             margin-right: 2px;
         }
@@ -493,10 +502,7 @@
             font-size: 0.8rem;
             margin-top: 2rem;
         }
-        footer a {
-            color: var(--blue-light);
-            text-decoration: none;
-        }
+        footer a { color: var(--blue-light); text-decoration: none; }
 
         /* === STATUS BAR === */
         .status-bar {
@@ -509,8 +515,7 @@
             color: var(--text-light);
         }
         .status-dot {
-            width: 6px;
-            height: 6px;
+            width: 6px; height: 6px;
             border-radius: 50%;
             background: var(--turquoise);
             animation: pulse-dot 2s infinite;
@@ -532,16 +537,13 @@
             font-size: 0.9rem;
         }
         .spinner {
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             border: 2px solid var(--blue-pale);
             border-top-color: var(--blue-mid);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
@@ -553,6 +555,7 @@
             .marine-grid { grid-template-columns: repeat(2, 1fr); }
             .webcams-grid { grid-template-columns: 1fr; }
             .forecast-panel iframe { height: 350px; }
+            .portus-cards { grid-template-columns: 1fr; }
         }
         @media (max-width: 480px) {
             .stations-grid { grid-template-columns: 1fr; }
@@ -593,7 +596,6 @@
 
     <div class="container">
 
-        <!-- MAP SECTION -->
         <section id="mapa">
             <h2 class="section-title">Mapa de vent</h2>
             <div id="map"></div>
@@ -603,7 +605,6 @@
             </div>
         </section>
 
-        <!-- STATIONS SECTION -->
         <section id="estacions">
             <h2 class="section-title">Estacions costaneres</h2>
             <div class="stations-grid" id="stations-grid">
@@ -611,31 +612,55 @@
             </div>
         </section>
 
-        <!-- MARINE SECTION -->
         <section id="marine">
             <h2 class="section-title">Condicions marines</h2>
             <div class="marine-grid" id="marine-grid">
                 <div class="loading"><div class="spinner"></div> Carregant dades marines...</div>
             </div>
+            <div class="portus-section">
+                <h3 style="font-size:1rem;color:var(--blue-deep);margin-bottom:0.8rem;font-weight:600;">Boia de Maó &mdash; Puertos del Estado</h3>
+                <div class="portus-cards">
+                    <div class="portus-card">
+                        <h4>Alçada d'ona (Hm0, Hmax)</h4>
+                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=Hm0,Hmax&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                    </div>
+                    <div class="portus-card">
+                        <h4>Període d'ona (Tm02, Tp)</h4>
+                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=Tm02,Tp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                    </div>
+                    <div class="portus-card">
+                        <h4>Temperatura de l'aigua</h4>
+                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=WaterTemp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                    </div>
+                    <div class="portus-card">
+                        <h4>Vent a la boia</h4>
+                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=WindSpeed,WindGust&dirParams=WindDir&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!-- WEBCAMS SECTION -->
         <section id="webcams">
             <h2 class="section-title">Webcams de costa</h2>
             <div class="webcams-grid" id="webcams-grid"></div>
         </section>
 
-        <!-- FORECAST SECTION -->
         <section id="prediccio">
             <h2 class="section-title">Predicció</h2>
             <div class="forecast-tabs" id="forecast-tabs">
                 <button class="forecast-tab active" data-tab="windy">Windy</button>
+                <button class="forecast-tab" data-tab="windguru">Windguru</button>
                 <button class="forecast-tab" data-tab="hourly">Horària</button>
                 <button class="forecast-tab" data-tab="marine-fc">Onatge</button>
                 <button class="forecast-tab" data-tab="pressure">Pressió</button>
             </div>
             <div class="forecast-panel active" id="panel-windy">
                 <iframe src="https://embed.windy.com/embed.html?type=forecast&location=coordinates&metricWind=kt&metricTemp=%C2%B0C&zoom=10&lat=39.95&lon=4.08&pressure=true&model=ecmwf&marker=true&calendar=now&message=true" loading="lazy"></iframe>
+            </div>
+            <div class="forecast-panel" id="panel-windguru">
+                <div class="windguru-container" id="windguru-container">
+                    <div class="loading"><div class="spinner"></div> Carregant Windguru...</div>
+                </div>
             </div>
             <div class="forecast-panel" id="panel-hourly">
                 <div class="forecast-table-wrap" id="hourly-table">
@@ -655,8 +680,8 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v1.0</div>
-        <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a></div>
+        <div>Bufa a Menorca? &mdash; v1.1</div>
+        <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
 
@@ -664,6 +689,8 @@
 // ============================================================
 // CONFIGURATION
 // ============================================================
+
+const WORKER_URL = 'https://menorca-meteo-api.xroigg737.workers.dev';
 
 const STATIONS = [
     { id: 'mao', name: 'Port de Maó', lat: 39.8883, lon: 4.2656, desc: 'Costa est · Port principal' },
@@ -675,6 +702,26 @@ const STATIONS = [
     { id: 'artrutx', name: "Cap d'Artrutx", lat: 39.9208, lon: 3.8156, desc: 'Punta sud-oest' },
     { id: 'son-bou', name: 'Son Bou', lat: 39.9006, lon: 4.0711, desc: 'Costa sud' },
     { id: 'aeroport', name: 'Aeroport', lat: 39.8625, lon: 4.2186, desc: 'Estació AEMET referència' },
+];
+
+const METEOCLIMATIC_MATCH = {
+    'ESIBA0700000307701A': { stationId: 'mao', name: 'Maó' },
+    'ESIBA0700000307760A': { stationId: 'ciutadella', name: 'Ciutadella de Menorca' },
+    'ESIBA0700000307769A': { stationId: null, name: 'Cala Morell', lat: 40.05, lon: 3.89, desc: 'Costa nord-oest · Meteoclimatic' },
+    'ESIBA0700000307712A': { stationId: null, name: 'Llucmaçanes', lat: 39.87, lon: 4.22, desc: 'Interior · Meteoclimatic' },
+    'ESIBA0700000307712B': { stationId: null, name: 'Sant Climent', lat: 39.87, lon: 4.17, desc: 'Interior sud · Meteoclimatic' },
+    'ESIBA0700000307712C': { stationId: null, name: 'Llucmaçanes (2)', lat: 39.87, lon: 4.22, desc: 'Interior · Meteoclimatic' },
+    'ESIBA0700000307710A': { stationId: null, name: 'Sant Lluís', lat: 39.85, lon: 4.25, desc: 'Costa sud-est · Meteoclimatic' },
+    'ESIBA0700000307710B': { stationId: null, name: 'Sant Lluís (2)', lat: 39.85, lon: 4.26, desc: 'Costa sud-est · Meteoclimatic' },
+};
+
+const WINDGURU_SPOTS = [
+    { id: 48918, name: 'Fornells', desc: 'Costa nord' },
+    { id: 14039, name: 'Mahón', desc: 'Costa est' },
+    { id: 194276, name: 'Ciutadella', desc: 'Costa oest' },
+    { id: 48915, name: 'Son Bou', desc: 'Costa sud' },
+    { id: 48919, name: 'Es Grau', desc: 'Costa nord-est' },
+    { id: 48914, name: 'Punta Prima', desc: 'Costa sud-est' },
 ];
 
 const MARINE_POINT = { lat: 39.80, lon: 4.10 };
@@ -709,12 +756,8 @@ const REFRESH_INTERVAL = 5 * 60 * 1000;
 // UTILITIES
 // ============================================================
 
-function getWindName(deg) {
-    return WIND_NAMES[Math.round(deg / 45) % 8];
-}
-function getWindAbbr(deg) {
-    return WIND_ABBR[Math.round(deg / 45) % 8];
-}
+function getWindName(deg) { return WIND_NAMES[Math.round(deg / 45) % 8]; }
+function getWindAbbr(deg) { return WIND_ABBR[Math.round(deg / 45) % 8]; }
 
 function getWindColor(knots) {
     if (knots < 5) return 'var(--wind-calm)';
@@ -736,9 +779,7 @@ function getWindColorHex(knots) {
     return '#9b59b6';
 }
 
-function getWmoIcon(code) {
-    return WMO_ICONS[code] || '🌤️';
-}
+function getWmoIcon(code) { return WMO_ICONS[code] || '🌤️'; }
 
 function compassSVG(direction, size, color) {
     const rad = (direction - 90) * Math.PI / 180;
@@ -766,16 +807,6 @@ function dirArrowSmallSVG(direction, color) {
     </svg>`;
 }
 
-function formatTime(isoStr) {
-    const d = new Date(isoStr);
-    return d.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
-}
-
-function formatDayHeader(isoStr) {
-    const d = new Date(isoStr);
-    return d.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-}
-
 // ============================================================
 // DATA FETCHING
 // ============================================================
@@ -790,32 +821,76 @@ async function fetchStationData() {
     const resp = await fetch(url);
     const data = await resp.json();
 
-    if (Array.isArray(data)) {
-        return data.map((d, i) => ({
-            ...STATIONS[i],
-            wind: d.current.wind_speed_10m,
-            dir: d.current.wind_direction_10m,
-            gusts: d.current.wind_gusts_10m,
-            temp: d.current.temperature_2m,
-            feelsLike: d.current.apparent_temperature,
-            humidity: d.current.relative_humidity_2m,
-            pressure: d.current.pressure_msl,
-            wmo: d.current.weather_code,
-            time: d.current.time,
-        }));
+    const results = Array.isArray(data) ? data : [data];
+    return results.map((d, i) => ({
+        ...STATIONS[i],
+        wind: d.current.wind_speed_10m,
+        dir: d.current.wind_direction_10m,
+        gusts: d.current.wind_gusts_10m,
+        temp: d.current.temperature_2m,
+        feelsLike: d.current.apparent_temperature,
+        humidity: d.current.relative_humidity_2m,
+        pressure: d.current.pressure_msl,
+        wmo: d.current.weather_code,
+        time: d.current.time,
+        source: 'model',
+    }));
+}
+
+async function fetchMeteoclimaticData() {
+    try {
+        const resp = await fetch(WORKER_URL + '/meteoclimatic');
+        if (!resp.ok) return [];
+        const data = await resp.json();
+        return data.stations || [];
+    } catch (e) {
+        console.log('Meteoclimatic not available (worker not deployed yet):', e.message);
+        return [];
     }
-    return [{
-        ...STATIONS[0],
-        wind: data.current.wind_speed_10m,
-        dir: data.current.wind_direction_10m,
-        gusts: data.current.wind_gusts_10m,
-        temp: data.current.temperature_2m,
-        feelsLike: data.current.apparent_temperature,
-        humidity: data.current.relative_humidity_2m,
-        pressure: data.current.pressure_msl,
-        wmo: data.current.weather_code,
-        time: data.current.time,
-    }];
+}
+
+function mergeStationData(modelStations, mcStations) {
+    const merged = [...modelStations];
+
+    for (const mc of mcStations) {
+        const matchInfo = METEOCLIMATIC_MATCH[mc.id];
+        if (!matchInfo) continue;
+
+        if (matchInfo.stationId) {
+            const idx = merged.findIndex(s => s.id === matchInfo.stationId);
+            if (idx !== -1) {
+                merged[idx] = {
+                    ...merged[idx],
+                    wind: mc.wind.speed_kn,
+                    dir: mc.wind.direction,
+                    gusts: mc.wind.gust_kn,
+                    temp: mc.temperature.current,
+                    humidity: mc.humidity.current,
+                    pressure: mc.pressure.current,
+                    source: 'meteoclimatic',
+                    mcId: mc.id,
+                };
+            }
+        } else {
+            merged.push({
+                id: 'mc-' + mc.id.slice(-4),
+                name: matchInfo.name,
+                lat: mc.lat || matchInfo.lat,
+                lon: mc.lon || matchInfo.lon,
+                desc: matchInfo.desc,
+                wind: mc.wind.speed_kn,
+                dir: mc.wind.direction,
+                gusts: mc.wind.gust_kn,
+                temp: mc.temperature.current,
+                humidity: mc.humidity.current,
+                pressure: mc.pressure.current,
+                source: 'meteoclimatic',
+                mcId: mc.id,
+            });
+        }
+    }
+
+    return merged;
 }
 
 async function fetchMarineData() {
@@ -863,20 +938,23 @@ function updateMap(stationsData) {
 
     stationsData.forEach(s => {
         const color = getWindColorHex(s.wind);
+        const isReal = s.source !== 'model';
         const icon = L.divIcon({
             className: 'wind-marker',
             html: `
                 ${windArrowSVG(s.dir, color, 32)}
-                <div class="wind-label">${Math.round(s.wind)} kn</div>
+                <div class="wind-label ${isReal ? 'real-station' : ''}">${Math.round(s.wind)} kn</div>
             `,
             iconSize: [40, 50],
             iconAnchor: [20, 25],
         });
 
+        const sourceLabel = isReal ? '🟢 Estació real' : '🔵 Model';
         const marker = L.marker([s.lat, s.lon], { icon }).addTo(map);
         marker.bindPopup(`
-            <div style="font-family:system-ui;min-width:150px">
-                <strong>${s.name}</strong><br>
+            <div style="font-family:system-ui;min-width:160px">
+                <strong>${s.name}</strong>
+                <span style="font-size:10px;margin-left:4px;color:${isReal ? '#16a085' : '#2980b9'}">${sourceLabel}</span><br>
                 <span style="color:#666;font-size:12px">${s.desc}</span>
                 <hr style="margin:6px 0;border:none;border-top:1px solid #eee">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:13px">
@@ -900,12 +978,16 @@ function renderStations(stationsData) {
     grid.innerHTML = stationsData.map(s => {
         const color = getWindColor(s.wind);
         const colorHex = getWindColorHex(s.wind);
+        const isReal = s.source !== 'model';
+        const badge = isReal
+            ? '<span class="source-badge real">Estació real</span>'
+            : '<span class="source-badge model">Model</span>';
         return `
         <div class="station-card">
             <div class="wind-stripe" style="background:${color}"></div>
             <div class="station-header">
                 <div>
-                    <div class="station-name">${s.name}</div>
+                    <div class="station-name">${s.name} ${badge}</div>
                     <div class="station-desc">${s.desc}</div>
                 </div>
                 ${compassSVG(s.dir, 48, colorHex)}
@@ -996,6 +1078,41 @@ function renderWebcams() {
 }
 
 // ============================================================
+// WINDGURU
+// ============================================================
+
+let windguruLoaded = false;
+
+function loadWindguru() {
+    if (windguruLoaded) return;
+    windguruLoaded = true;
+
+    const container = document.getElementById('windguru-container');
+    container.innerHTML = WINDGURU_SPOTS.map((spot, i) => `
+        <div class="windguru-spot">
+            <div class="windguru-spot-header">
+                <span>${spot.name} · ${spot.desc}</span>
+                <a href="https://www.windguru.cz/${spot.id}" target="_blank" rel="noopener">Obrir a Windguru</a>
+            </div>
+            <div class="windguru-widget" id="wg_spot_${i}"></div>
+        </div>
+    `).join('');
+
+    WINDGURU_SPOTS.forEach((spot, i) => {
+        const uid = 'wg_fwdg_' + spot.id + '_' + i;
+        const div = document.getElementById('wg_spot_' + i);
+        const widgetDiv = document.createElement('div');
+        widgetDiv.id = uid;
+        div.appendChild(widgetDiv);
+
+        const script = document.createElement('script');
+        script.src = `https://www.windguru.cz/js/widget.php?s=${spot.id}&m=3&uid=${uid}&wj=knots&tj=c&odh=0&dession=true&p=WINDSPD,GUST,SMER,TMPE,FLHGT,DIRPW`;
+        script.async = true;
+        div.appendChild(script);
+    });
+}
+
+// ============================================================
 // FORECAST TABLES
 // ============================================================
 
@@ -1076,6 +1193,7 @@ function setupTabs() {
             document.querySelectorAll('.forecast-panel').forEach(p => p.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+            if (tab.dataset.tab === 'windguru') loadWindguru();
         });
     });
 }
@@ -1108,7 +1226,7 @@ function setupNav() {
 }
 
 // ============================================================
-// CLOCK
+// CLOCK & STATUS
 // ============================================================
 
 function updateClock() {
@@ -1116,10 +1234,6 @@ function updateClock() {
     document.getElementById('header-time').textContent = now.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
     document.getElementById('header-date').textContent = now.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short' });
 }
-
-// ============================================================
-// STATUS
-// ============================================================
 
 function setStatus(text, ok = true) {
     document.getElementById('status-text').textContent = text;
@@ -1134,12 +1248,16 @@ async function loadAllData() {
     setStatus('Actualitzant dades...');
 
     try {
-        const [stationsData, marineData, hourlyData, marineFcData] = await Promise.all([
+        const [modelStations, mcStations, marineData, hourlyData, marineFcData] = await Promise.all([
             fetchStationData(),
+            fetchMeteoclimaticData(),
             fetchMarineData(),
             fetchHourlyForecast(),
             fetchMarineForecast(),
         ]);
+
+        const stationsData = mergeStationData(modelStations, mcStations);
+        const realCount = stationsData.filter(s => s.source !== 'model').length;
 
         updateMap(stationsData);
         renderStations(stationsData);
@@ -1148,7 +1266,8 @@ async function loadAllData() {
         renderMarineForecast(marineFcData);
 
         const time = new Date().toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        setStatus(`Última actualització: ${time}`, true);
+        const src = realCount > 0 ? ` · ${realCount} estacions reals` : '';
+        setStatus(`Última actualització: ${time}${src}`, true);
     } catch (err) {
         console.error('Error loading data:', err);
         setStatus('Error carregant dades. Reintentant...', false);
