@@ -32,13 +32,13 @@
             --shadow: 0 2px 12px rgba(12, 35, 64, 0.08);
             --shadow-hover: 0 4px 20px rgba(12, 35, 64, 0.14);
             --radius: 12px;
-            --wind-calm: #88d8b0;
-            --wind-light: #4ecdc4;
-            --wind-moderate: #45b7d1;
-            --wind-fresh: #f9ca24;
-            --wind-strong: #f0932b;
-            --wind-vstrong: #eb4d4b;
-            --wind-gale: #9b59b6;
+            --wind-calm: #2ecc71;
+            --wind-light: #00b894;
+            --wind-moderate: #0984e3;
+            --wind-fresh: #e17055;
+            --wind-strong: #d63031;
+            --wind-vstrong: #c0392b;
+            --wind-gale: #8e44ad;
         }
 
         body {
@@ -773,7 +773,7 @@
     <nav>
         <div class="nav-inner">
             <a href="#mapa" class="active">Mapa</a>
-            <a href="#recer">Recer</a>
+            <a href="#zoom-estacio">Zoom estació</a>
             <a href="#estacions">Estacions</a>
             <a href="#marine">Mar</a>
             <a href="#webcams">Webcams</a>
@@ -792,8 +792,8 @@
             </div>
         </section>
 
-        <section id="recer">
-            <h2 class="section-title">Recer i navegació</h2>
+        <section id="zoom-estacio">
+            <h2 class="section-title">Zoom estació</h2>
             <div id="shelter-recommendation">
                 <div class="loading"><div class="spinner"></div> Calculant condicions...</div>
             </div>
@@ -816,19 +816,19 @@
                 <div class="portus-cards">
                     <div class="portus-card">
                         <h4>Alçada d'ona (Hm0, Hmax)</h4>
-                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=Hm0,Hmax&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=Hm0,Hmax&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
                     </div>
                     <div class="portus-card">
                         <h4>Període d'ona (Tm02, Tp)</h4>
-                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=Tm02,Tp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=Tm02,Tp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
                     </div>
                     <div class="portus-card">
                         <h4>Temperatura de l'aigua</h4>
-                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=WaterTemp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=WaterTemp&dirParams=&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
                     </div>
                     <div class="portus-card">
                         <h4>Vent a la boia</h4>
-                        <iframe src="https://portus.puertos.es/Portal/rtChart?station=2838&params=WindSpeed,WindGust&dirParams=WindDir&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
+                        <iframe src="https://portus.puertos.es/PortusData/rtChart?station=2838&params=WindSpeed,WindGust&dirParams=WindDir&int=default&isRadar=false&locale=es&scroll=true" loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
@@ -874,7 +874,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.5</div>
+        <div>Bufa a Menorca? &mdash; v2.6</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -918,7 +918,10 @@ const WINDGURU_SPOTS = [
     { id: 48914, name: 'Punta Prima', desc: 'Costa sud-est' },
 ];
 
-const MARINE_POINT = { lat: 39.80, lon: 4.10 };
+const MARINE_POINTS = {
+    sud: { lat: 39.80, lon: 4.10, name: 'Sud de Menorca' },
+    nord: { lat: 40.12, lon: 4.08, name: 'Nord de Menorca' },
+};
 
 const WEBCAMS = [
     { name: 'Port de Maó', location: 'Costa est', source: 'YouTube Live', url: 'https://www.youtube.com/watch?v=sacX9Kb8g8M', gradient: 'linear-gradient(135deg, #0c2340, #1a5276)' },
@@ -964,13 +967,13 @@ function getWindColor(knots) {
 }
 
 function getWindColorHex(knots) {
-    if (knots < 5) return '#88d8b0';
-    if (knots < 10) return '#4ecdc4';
-    if (knots < 15) return '#45b7d1';
-    if (knots < 20) return '#f9ca24';
-    if (knots < 25) return '#f0932b';
-    if (knots < 30) return '#eb4d4b';
-    return '#9b59b6';
+    if (knots < 5) return '#2ecc71';
+    if (knots < 10) return '#00b894';
+    if (knots < 15) return '#0984e3';
+    if (knots < 20) return '#e17055';
+    if (knots < 25) return '#d63031';
+    if (knots < 30) return '#c0392b';
+    return '#8e44ad';
 }
 
 function getWmoIcon(code) { return WMO_ICONS[code] || '🌤️'; }
@@ -1137,11 +1140,16 @@ function mergeStationData(modelStations, mcStations) {
 }
 
 async function fetchMarineData() {
-    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${MARINE_POINT.lat}&longitude=${MARINE_POINT.lon}` +
+    const lats = Object.values(MARINE_POINTS).map(p => p.lat).join(',');
+    const lons = Object.values(MARINE_POINTS).map(p => p.lon).join(',');
+    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lats}&longitude=${lons}` +
         `&current=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_period,swell_wave_height,swell_wave_period,swell_wave_direction` +
         `&timezone=Europe/Madrid`;
     const resp = await fetch(url);
-    return await resp.json();
+    const data = await resp.json();
+    const results = Array.isArray(data) ? data : [data];
+    const keys = Object.keys(MARINE_POINTS);
+    return Object.fromEntries(keys.map((k, i) => [k, results[i]]));
 }
 
 async function fetchHourlyForecast() {
@@ -1153,7 +1161,7 @@ async function fetchHourlyForecast() {
 }
 
 async function fetchMarineForecast() {
-    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${MARINE_POINT.lat}&longitude=${MARINE_POINT.lon}` +
+    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${MARINE_POINTS.sud.lat}&longitude=${MARINE_POINTS.sud.lon}` +
         `&hourly=wave_height,wave_direction,wave_period,wind_wave_height,wind_wave_period,swell_wave_height,swell_wave_period,swell_wave_direction` +
         `&timezone=Europe/Madrid&forecast_days=3`;
     const resp = await fetch(url);
@@ -1273,10 +1281,8 @@ function renderStations(stationsData) {
 // MARINE CONDITIONS
 // ============================================================
 
-function renderMarine(data) {
-    const c = data.current;
-    const grid = document.getElementById('marine-grid');
-    grid.innerHTML = `
+function renderMarineZone(c, zoneName) {
+    return `
         <div class="marine-card">
             <div class="marine-icon">🌊</div>
             <div class="marine-value">${c.wave_height} <span class="unit">m</span></div>
@@ -1290,7 +1296,7 @@ function renderMarine(data) {
         <div class="marine-card">
             <div class="marine-icon">🧭</div>
             <div class="marine-value">${getWindAbbr(c.wave_direction)}</div>
-            <div class="marine-label">Direcció onatge (${Math.round(c.wave_direction)}°)</div>
+            <div class="marine-label">Dir. onatge (${Math.round(c.wave_direction)}°)</div>
         </div>
         <div class="marine-card">
             <div class="marine-icon">💨</div>
@@ -1308,6 +1314,25 @@ function renderMarine(data) {
             <div class="marine-label">Període swell</div>
         </div>
     `;
+}
+
+function renderMarine(data) {
+    const grid = document.getElementById('marine-grid');
+    const sud = data.sud?.current;
+    const nord = data.nord?.current;
+    let html = '<div style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.6rem;">Model Open-Meteo Marine · Dades en temps real</div>';
+
+    if (nord) {
+        html += `<h4 style="font-size:0.9rem;font-weight:700;color:var(--blue-deep);margin:0.8rem 0 0.5rem;display:flex;align-items:center;gap:0.4rem;">
+            <span style="color:var(--blue-mid);">&#9650;</span> Costa nord <span style="font-size:0.7rem;font-weight:400;color:var(--text-light);">(40.12°N, 4.08°E)</span></h4>`;
+        html += `<div class="marine-grid">${renderMarineZone(nord, 'Nord')}</div>`;
+    }
+    if (sud) {
+        html += `<h4 style="font-size:0.9rem;font-weight:700;color:var(--blue-deep);margin:1rem 0 0.5rem;display:flex;align-items:center;gap:0.4rem;">
+            <span style="color:var(--blue-mid);">&#9660;</span> Costa sud <span style="font-size:0.7rem;font-weight:400;color:var(--text-light);">(39.80°N, 4.10°E)</span></h4>`;
+        html += `<div class="marine-grid">${renderMarineZone(sud, 'Sud')}</div>`;
+    }
+    grid.innerHTML = html;
 }
 
 // ============================================================
@@ -1370,7 +1395,7 @@ function updateShelterHero(stationId) {
     const windN = getWindName(w.dir);
     const windA = getWindAbbr(w.dir);
     const bf = beaufort(w.speed);
-    const waveH = shelterMarineData?.current?.wave_height || 0;
+    const waveH = shelterMarineData?.sud?.current?.wave_height || shelterMarineData?.current?.wave_height || 0;
     const nav = getNavConditions(w.speed, waveH);
     const bfColor = bf.cat === 'calm' ? '#2ecc71' : bf.cat === 'light' ? '#88d8b0' : bf.cat === 'moderate' ? '#f9ca24' : bf.cat === 'fresh' ? '#f0932b' : bf.cat === 'strong' ? '#eb4d4b' : '#9b59b6';
 
@@ -1424,7 +1449,7 @@ function renderShelter(stationsData, marineData) {
     const windN = getWindName(avg.dir);
     const windA = getWindAbbr(avg.dir);
     const bf = beaufort(avg.speed);
-    const waveH = marineData?.current?.wave_height || 0;
+    const waveH = marineData?.sud?.current?.wave_height || marineData?.current?.wave_height || 0;
     const nav = getNavConditions(avg.speed, waveH);
     const bfColor = bf.cat === 'calm' ? '#2ecc71' : bf.cat === 'light' ? '#88d8b0' : bf.cat === 'moderate' ? '#f9ca24' : bf.cat === 'fresh' ? '#f0932b' : bf.cat === 'strong' ? '#eb4d4b' : '#9b59b6';
 
