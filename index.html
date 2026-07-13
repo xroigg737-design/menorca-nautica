@@ -663,36 +663,6 @@
         }
         .nav-conditions-text { font-size: 0.95rem; font-weight: 700; }
         .nav-conditions-detail { font-size: 0.8rem; opacity: 0.7; margin-top: 2px; }
-        .shelter-type-header {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--blue-deep);
-            margin: 1.2rem 0 0.6rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .beach-card-type {
-            display: inline-block;
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 6px;
-            vertical-align: middle;
-        }
-        .beach-card-type.port {
-            background: rgba(41, 128, 185, 0.12);
-            color: var(--blue-mid);
-            border: 1px solid rgba(41, 128, 185, 0.25);
-        }
-        .beach-card-type.fondeig {
-            background: rgba(26, 188, 156, 0.12);
-            color: #16a085;
-            border: 1px solid rgba(26, 188, 156, 0.25);
-        }
         .beaufort-badge {
             display: inline-block;
             font-size: 0.75rem;
@@ -880,7 +850,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.2</div>
+        <div>Bufa a Menorca? &mdash; v2.3</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -935,26 +905,6 @@ const WEBCAMS = [
     { name: 'Real Aeroclub de Mahón', location: 'Maó', source: 'Windy', url: 'https://www.windy.com/webcams/1316273438', gradient: 'linear-gradient(135deg, #1a3a5c, #5dade2)' },
     { name: 'Badia de Fornells', location: 'Costa nord', source: 'Webcam turística', url: 'https://www.skylinewebcams.com/es/webcam/espana/islas-baleares/menorca.html', gradient: 'linear-gradient(135deg, #1a5276, #45b7d1)' },
     { name: 'Ciutadella', location: 'Plaça des Born', source: 'Webcam turística', url: 'https://www.meteoblue.com/en/weather/webcams/minorca_spain_2513925', gradient: 'linear-gradient(135deg, #2c3e50, #1abc9c)' },
-];
-
-const PORTS_RECERS = [
-    { name: 'Cala Teulera', type: 'fondeig', desc: 'Entrada de Maó, bon fondeig amb poc calat', shelter: ['W','NW','SW','S','N'], exposed: ['E','NE'] },
-    { name: 'Cala Galdana', type: 'fondeig', desc: 'Cala tancada, excel·lent recer amb Tramuntana', shelter: ['N','NE','NW','W','E'], exposed: ['S','SE'] },
-    { name: 'Cala Macarella', type: 'fondeig', desc: 'Fondeig idíl·lic, protegit del nord', shelter: ['N','NE','NW','W'], exposed: ['S','SE','SW'] },
-    { name: 'Cala Turqueta', type: 'fondeig', desc: 'Fondeig popular, bon recer del N', shelter: ['N','NE','NW','E'], exposed: ['S','SE','SW'] },
-    { name: 'Arenal d\'en Castell', type: 'fondeig', desc: 'Badia oberta, bo amb vents del sud', shelter: ['S','SW','W'], exposed: ['N','NE','E'] },
-    { name: 'Sanitja', type: 'fondeig', desc: 'Port antic romà, recer de Migjorn', shelter: ['S','SE','SW','E'], exposed: ['N','NE','NW'] },
-    { name: 'Cala Pregonda', type: 'fondeig', desc: 'Fondeig espectacular, bo amb sud', shelter: ['S','SE','SW','E'], exposed: ['N','NW'] },
-    { name: 'Es Grau', type: 'fondeig', desc: 'Badia protegida, parc natural', shelter: ['W','NW','SW','N','S'], exposed: ['E','NE','SE'] },
-    { name: 'Cala en Porter', type: 'fondeig', desc: 'Entre penya-segats, bon recer del N', shelter: ['N','NE','NW','W','E'], exposed: ['S'] },
-    { name: 'Son Saura (sud)', type: 'fondeig', desc: 'Dues cales, recer del nord', shelter: ['N','NE','NW','E'], exposed: ['S','SW'] },
-    { name: 'Cala Mitjana', type: 'fondeig', desc: 'Petita, ben tancada, recer del N', shelter: ['N','NE','NW','W','E'], exposed: ['S','SE'] },
-    { name: 'Trebalúger', type: 'fondeig', desc: 'Cala profunda, molt protegida', shelter: ['N','NE','NW','W','E'], exposed: ['S'] },
-    { name: 'Binibèquer', type: 'fondeig', desc: 'Fondeig costaner sud-est', shelter: ['W','NW','N'], exposed: ['SE','S','E'] },
-    { name: 'Cala Alcaufar', type: 'fondeig', desc: 'Cala estreta, bon recer lateral', shelter: ['W','NW','N','SW'], exposed: ['SE','E'] },
-    { name: 'Son Bou', type: 'fondeig', desc: 'Fondeig obert, només amb calma o N', shelter: ['N','NE','NW'], exposed: ['S','SE','SW'] },
-    { name: 'Cala Morell', type: 'fondeig', desc: 'Cala rocosa NW, bon snorkel', shelter: ['S','SE','E','SW'], exposed: ['N','NW','W'] },
-    { name: 'Algaiarens', type: 'fondeig', desc: 'Dues cales, bo amb sud/est', shelter: ['S','SE','E','SW'], exposed: ['N','NW'] },
 ];
 
 const WIND_NAMES = ['Tramuntana', 'Gregal', 'Llevant', 'Xaloc', 'Migjorn', 'Garbí', 'Ponent', 'Mestral'];
@@ -1427,27 +1377,7 @@ function updateShelterHero(stationId) {
         extraEl.style.display = 'none';
     }
 
-    const sheltered = PORTS_RECERS.filter(p => p.shelter.includes(windA));
-    const exposed = PORTS_RECERS.filter(p => p.exposed.includes(windA));
-    const shelteredFondeigs = sheltered.filter(p => p.type === 'fondeig');
 
-    document.getElementById('shelter-fondeigs').innerHTML = shelteredFondeigs.length ? `
-        <div class="shelter-type-header">&#9875; Fondeigs protegits</div>
-        <div class="beach-grid">
-            ${shelteredFondeigs.map(p => `
-                <div class="beach-card">
-                    <div class="beach-card-name">${p.name} <span class="beach-card-type fondeig">Fondeig</span></div>
-                    <div class="beach-card-desc">${p.desc}</div>
-                </div>
-            `).join('')}
-        </div>
-    ` : '';
-
-    document.getElementById('shelter-exposed').innerHTML = exposed.length ? `
-        <div class="beach-avoid">
-            &#9888;&#65039; <strong>Exposats al ${windN}:</strong> ${exposed.map(p => p.name).join(', ')}
-        </div>
-    ` : '';
 }
 
 function renderShelter(stationsData, marineData) {
@@ -1493,8 +1423,6 @@ function renderShelter(stationsData, marineData) {
                 </div>
             </div>
         </div>
-        <div id="shelter-fondeigs"></div>
-        <div id="shelter-exposed"></div>
     `;
 
     updateShelterHero('avg');
