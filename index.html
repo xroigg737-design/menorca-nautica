@@ -164,31 +164,55 @@
 
         /* === MAP === */
         #map {
-            height: 400px;
+            height: 460px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             z-index: 1;
+            border: 2px solid rgba(12, 35, 64, 0.12);
         }
-        .wind-marker {
+        .wind-marker-v2 {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1px;
+            gap: 2px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
         }
-        .wind-label {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text);
-            background: rgba(255,255,255,0.9);
-            padding: 1px 4px;
-            border-radius: 3px;
-            white-space: nowrap;
+        .wm-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+        }
+        .wm-label {
+            color: white;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 8px;
             text-align: center;
+            white-space: nowrap;
+            border: 2px solid white;
             line-height: 1.2;
         }
-        .wind-label.real-station {
-            border: 1.5px solid var(--turquoise);
-            background: rgba(255,255,255,0.95);
+        .wm-speed { font-size: 13px; }
+        .wm-unit { font-size: 9px; margin-left: 1px; opacity: 0.9; }
+        .wm-name {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--blue-deep);
+            background: rgba(255,255,255,0.93);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            text-align: center;
+            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wm-name.wm-real {
+            border-bottom: 2px solid var(--turquoise);
         }
 
         /* === STATION CARDS === */
@@ -550,7 +574,7 @@
             header { padding: 1.2rem 1rem 2rem; }
             .app-title { font-size: 1.4rem; }
             .header-subtitle { font-size: 0.85rem; }
-            #map { height: 300px; }
+            #map { height: 340px; }
             .stations-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
             .marine-grid { grid-template-columns: repeat(2, 1fr); }
             .webcams-grid { grid-template-columns: 1fr; }
@@ -850,7 +874,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.3</div>
+        <div>Bufa a Menorca? &mdash; v2.4</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1144,11 +1168,17 @@ let map, markers = [];
 
 function initMap() {
     map = L.map('map', { zoomControl: true }).setView([39.97, 4.08], 11);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Esri, GEBCO, NOAA, National Geographic',
         maxZoom: 16
     }).addTo(map);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 16
+    }).addTo(map);
+}
+
+function shortName(name) {
+    return name.replace('Port de ', '').replace("Cap d'", "C.").replace('Cap de ', 'C.');
 }
 
 function updateMap(stationsData) {
@@ -1159,26 +1189,33 @@ function updateMap(stationsData) {
         const color = getWindColorHex(s.wind);
         const isReal = s.source !== 'model';
         const icon = L.divIcon({
-            className: 'wind-marker',
+            className: 'wind-marker-v2',
             html: `
-                ${windArrowSVG(s.dir, color, 32)}
-                <div class="wind-label ${isReal ? 'real-station' : ''}">${Math.round(s.wind)} kn</div>
+                <div class="wm-circle" style="background:${color}">
+                    <svg width="22" height="22" viewBox="0 0 32 32" style="transform:rotate(${s.dir}deg)">
+                        <polygon points="16,3 23,25 16,20 9,25" fill="white" stroke="rgba(0,0,0,0.1)" stroke-width="0.5" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="wm-label" style="background:${color}">
+                    <span class="wm-speed">${Math.round(s.wind)}</span><span class="wm-unit"> kn</span>
+                </div>
+                <div class="wm-name ${isReal ? 'wm-real' : ''}">${shortName(s.name)}</div>
             `,
-            iconSize: [40, 50],
-            iconAnchor: [20, 25],
+            iconSize: [80, 80],
+            iconAnchor: [40, 40],
         });
 
         const sourceLabel = isReal ? '🟢 Estació real' : '🔵 Model';
         const marker = L.marker([s.lat, s.lon], { icon }).addTo(map);
         marker.bindPopup(`
-            <div style="font-family:system-ui;min-width:160px">
-                <strong>${s.name}</strong>
+            <div style="font-family:system-ui;min-width:180px">
+                <strong style="font-size:14px">${s.name}</strong>
                 <span style="font-size:10px;margin-left:4px;color:${isReal ? '#16a085' : '#2980b9'}">${sourceLabel}</span><br>
                 <span style="color:#666;font-size:12px">${s.desc}</span>
-                <hr style="margin:6px 0;border:none;border-top:1px solid #eee">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:13px">
-                    <div><strong>${Math.round(s.wind)} kn</strong> vent</div>
-                    <div><strong>${Math.round(s.gusts)} kn</strong> ràfega</div>
+                <hr style="margin:8px 0;border:none;border-top:1px solid #eee">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px">
+                    <div><strong style="color:${color};font-size:16px">${Math.round(s.wind)} kn</strong><br><span style="color:#888;font-size:11px">vent</span></div>
+                    <div><strong style="font-size:16px">${Math.round(s.gusts)} kn</strong><br><span style="color:#888;font-size:11px">ràfega</span></div>
                     <div><strong>${getWindName(s.dir)}</strong> (${Math.round(s.dir)}°)</div>
                     <div><strong>${s.temp}°C</strong></div>
                 </div>
