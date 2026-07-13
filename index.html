@@ -880,7 +880,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.1</div>
+        <div>Bufa a Menorca? &mdash; v2.2</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -938,11 +938,6 @@ const WEBCAMS = [
 ];
 
 const PORTS_RECERS = [
-    { name: 'Port de Maó', type: 'port', desc: 'Port natural profund, un dels millors del Mediterrani', shelter: ['N','NE','S','SE','SW','W','NW'], exposed: ['E'] },
-    { name: 'Port de Ciutadella', type: 'port', desc: 'Port interior. Alerta rissagues amb SW', shelter: ['N','NE','E','SE','S','NW'], exposed: ['W','SW'] },
-    { name: 'Port de Fornells', type: 'port', desc: 'Badia tancada, bon recer general', shelter: ['E','SE','S','SW','W'], exposed: ['N','NE','NW'] },
-    { name: 'Port d\'Addaia', type: 'port', desc: 'Port natural, ben protegit', shelter: ['S','SW','W','NW','N'], exposed: ['NE','E'] },
-    { name: 'Cala en Bosc', type: 'port', desc: 'Marina esportiva, recer moderat', shelter: ['N','NE','E','SE'], exposed: ['S','SW','W'] },
     { name: 'Cala Teulera', type: 'fondeig', desc: 'Entrada de Maó, bon fondeig amb poc calat', shelter: ['W','NW','SW','S','N'], exposed: ['E','NE'] },
     { name: 'Cala Galdana', type: 'fondeig', desc: 'Cala tancada, excel·lent recer amb Tramuntana', shelter: ['N','NE','NW','W','E'], exposed: ['S','SE'] },
     { name: 'Cala Macarella', type: 'fondeig', desc: 'Fondeig idíl·lic, protegit del nord', shelter: ['N','NE','NW','W'], exposed: ['S','SE','SW'] },
@@ -1434,20 +1429,7 @@ function updateShelterHero(stationId) {
 
     const sheltered = PORTS_RECERS.filter(p => p.shelter.includes(windA));
     const exposed = PORTS_RECERS.filter(p => p.exposed.includes(windA));
-    const shelteredPorts = sheltered.filter(p => p.type === 'port');
     const shelteredFondeigs = sheltered.filter(p => p.type === 'fondeig');
-
-    document.getElementById('shelter-ports').innerHTML = shelteredPorts.length ? `
-        <div class="shelter-type-header">&#9875; Ports amb recer</div>
-        <div class="beach-grid">
-            ${shelteredPorts.map(p => `
-                <div class="beach-card">
-                    <div class="beach-card-name">${p.name} <span class="beach-card-type port">Port</span></div>
-                    <div class="beach-card-desc">${p.desc}</div>
-                </div>
-            `).join('')}
-        </div>
-    ` : '';
 
     document.getElementById('shelter-fondeigs').innerHTML = shelteredFondeigs.length ? `
         <div class="shelter-type-header">&#9875; Fondeigs protegits</div>
@@ -1511,7 +1493,6 @@ function renderShelter(stationsData, marineData) {
                 </div>
             </div>
         </div>
-        <div id="shelter-ports"></div>
         <div id="shelter-fondeigs"></div>
         <div id="shelter-exposed"></div>
     `;
