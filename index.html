@@ -701,6 +701,55 @@
             border-radius: 10px;
             margin-left: 8px;
         }
+        .station-select-wrap {
+            margin-bottom: 0.8rem;
+        }
+        .station-select {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='white' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        .station-select:focus {
+            outline: none;
+            border-color: var(--turquoise);
+            box-shadow: 0 0 0 2px rgba(26,188,156,0.3);
+        }
+        .station-select option {
+            background: var(--blue-deep);
+            color: white;
+        }
+        .station-extra-data {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .station-extra-item {
+            text-align: center;
+        }
+        .station-extra-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .station-extra-label {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         @media (max-width: 768px) {
             .beach-wind-summary { flex-direction: column; text-align: center; }
             .beach-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
@@ -831,7 +880,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v2.0</div>
+        <div>Bufa a Menorca? &mdash; v2.1</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1306,45 +1355,155 @@ function renderWebcams() {
 // SHELTER & NAVIGATION
 // ============================================================
 
-function renderShelter(stationsData, marineData) {
-    const container = document.getElementById('shelter-recommendation');
+let shelterStationsData = [];
+let shelterMarineData = null;
 
+function getAvgWind(stations) {
     let sumX = 0, sumY = 0, sumSpeed = 0, sumGusts = 0;
-    stationsData.forEach(s => {
+    stations.forEach(s => {
         const rad = s.dir * Math.PI / 180;
         sumX += Math.cos(rad);
         sumY += Math.sin(rad);
         sumSpeed += s.wind;
         sumGusts += s.gusts;
     });
-    const n = stationsData.length;
-    const avgDir = ((Math.atan2(sumY / n, sumX / n) * 180 / Math.PI) + 360) % 360;
-    const avgSpeed = sumSpeed / n;
-    const avgGusts = sumGusts / n;
-    const windN = getWindName(avgDir);
-    const windA = getWindAbbr(avgDir);
-    const bf = beaufort(avgSpeed);
-    const waveH = marineData?.current?.wave_height || 0;
-    const nav = getNavConditions(avgSpeed, waveH);
+    const n = stations.length;
+    return {
+        dir: ((Math.atan2(sumY / n, sumX / n) * 180 / Math.PI) + 360) % 360,
+        speed: sumSpeed / n,
+        gusts: sumGusts / n,
+    };
+}
+
+function getStationWind(stationId) {
+    if (stationId === 'avg') {
+        return getAvgWind(shelterStationsData);
+    }
+    const s = shelterStationsData.find(st => st.id === stationId);
+    if (!s) return getAvgWind(shelterStationsData);
+    return { dir: s.dir, speed: s.wind, gusts: s.gusts, temp: s.temp, humidity: s.humidity, pressure: s.pressure, source: s.source, desc: s.desc };
+}
+
+function updateShelterHero(stationId) {
+    const w = getStationWind(stationId);
+    const isAvg = stationId === 'avg';
+    const windN = getWindName(w.dir);
+    const windA = getWindAbbr(w.dir);
+    const bf = beaufort(w.speed);
+    const waveH = shelterMarineData?.current?.wave_height || 0;
+    const nav = getNavConditions(w.speed, waveH);
+    const bfColor = bf.cat === 'calm' ? '#2ecc71' : bf.cat === 'light' ? '#88d8b0' : bf.cat === 'moderate' ? '#f9ca24' : bf.cat === 'fresh' ? '#f0932b' : bf.cat === 'strong' ? '#eb4d4b' : '#9b59b6';
+
+    document.getElementById('shelter-rose').innerHTML = windRoseSVG(w.dir, w.speed, 110);
+    document.getElementById('shelter-wind-name').innerHTML = `${windN} <span class="beaufort-badge" style="background:${bfColor};color:white">F${bf.force} ${bf.desc}</span>`;
+    document.getElementById('shelter-wind-speed').textContent = `${Math.round(w.speed)} kn · Ràfegues ${Math.round(w.gusts)} kn · ${Math.round(w.dir)}° (${windA})`;
+    document.getElementById('shelter-wind-detail').textContent = `Mar: ${waveH} m alçada d'ona`;
+
+    const navCond = document.getElementById('shelter-nav-cond');
+    navCond.style.background = nav.bg;
+    navCond.innerHTML = `
+        <div class="nav-conditions-dot" style="background:${nav.color};color:${nav.color}"></div>
+        <div>
+            <div class="nav-conditions-text" style="color:${nav.color}">${nav.text}</div>
+            <div class="nav-conditions-detail">${nav.detail}</div>
+        </div>
+    `;
+
+    const extraEl = document.getElementById('shelter-extra');
+    if (!isAvg && w.temp !== undefined) {
+        const srcLabel = w.source === 'meteoclimatic' ? 'Estació real' : 'Model';
+        const srcColor = w.source === 'meteoclimatic' ? '#16a085' : '#2980b9';
+        extraEl.innerHTML = `
+            <div class="station-extra-item">
+                <div class="station-extra-value">${w.temp}°C</div>
+                <div class="station-extra-label">Temperatura</div>
+            </div>
+            <div class="station-extra-item">
+                <div class="station-extra-value">${w.humidity}%</div>
+                <div class="station-extra-label">Humitat</div>
+            </div>
+            <div class="station-extra-item">
+                <div class="station-extra-value">${w.pressure} <span style="font-size:0.7rem;opacity:0.7">hPa</span></div>
+                <div class="station-extra-label">Pressió</div>
+            </div>
+        `;
+        extraEl.style.display = 'grid';
+    } else {
+        extraEl.style.display = 'none';
+    }
 
     const sheltered = PORTS_RECERS.filter(p => p.shelter.includes(windA));
     const exposed = PORTS_RECERS.filter(p => p.exposed.includes(windA));
     const shelteredPorts = sheltered.filter(p => p.type === 'port');
     const shelteredFondeigs = sheltered.filter(p => p.type === 'fondeig');
 
+    document.getElementById('shelter-ports').innerHTML = shelteredPorts.length ? `
+        <div class="shelter-type-header">&#9875; Ports amb recer</div>
+        <div class="beach-grid">
+            ${shelteredPorts.map(p => `
+                <div class="beach-card">
+                    <div class="beach-card-name">${p.name} <span class="beach-card-type port">Port</span></div>
+                    <div class="beach-card-desc">${p.desc}</div>
+                </div>
+            `).join('')}
+        </div>
+    ` : '';
+
+    document.getElementById('shelter-fondeigs').innerHTML = shelteredFondeigs.length ? `
+        <div class="shelter-type-header">&#9875; Fondeigs protegits</div>
+        <div class="beach-grid">
+            ${shelteredFondeigs.map(p => `
+                <div class="beach-card">
+                    <div class="beach-card-name">${p.name} <span class="beach-card-type fondeig">Fondeig</span></div>
+                    <div class="beach-card-desc">${p.desc}</div>
+                </div>
+            `).join('')}
+        </div>
+    ` : '';
+
+    document.getElementById('shelter-exposed').innerHTML = exposed.length ? `
+        <div class="beach-avoid">
+            &#9888;&#65039; <strong>Exposats al ${windN}:</strong> ${exposed.map(p => p.name).join(', ')}
+        </div>
+    ` : '';
+}
+
+function renderShelter(stationsData, marineData) {
+    shelterStationsData = stationsData;
+    shelterMarineData = marineData;
+    const container = document.getElementById('shelter-recommendation');
+
+    const avg = getAvgWind(stationsData);
+    const windN = getWindName(avg.dir);
+    const windA = getWindAbbr(avg.dir);
+    const bf = beaufort(avg.speed);
+    const waveH = marineData?.current?.wave_height || 0;
+    const nav = getNavConditions(avg.speed, waveH);
     const bfColor = bf.cat === 'calm' ? '#2ecc71' : bf.cat === 'light' ? '#88d8b0' : bf.cat === 'moderate' ? '#f9ca24' : bf.cat === 'fresh' ? '#f0932b' : bf.cat === 'strong' ? '#eb4d4b' : '#9b59b6';
+
+    const options = stationsData.map(s => {
+        const srcTag = s.source === 'meteoclimatic' ? ' • real' : '';
+        return `<option value="${s.id}">${s.name} (${Math.round(s.wind)} kn ${getWindAbbr(s.dir)}${srcTag})</option>`;
+    }).join('');
 
     container.innerHTML = `
         <div class="beach-hero">
+            <div class="station-select-wrap">
+                <select class="station-select" id="shelter-station-select">
+                    <option value="avg" selected>Totes les estacions (mitjana)</option>
+                    ${options}
+                </select>
+            </div>
             <div class="beach-wind-summary">
-                <div class="beach-wind-rose">${windRoseSVG(avgDir, avgSpeed, 110)}</div>
+                <div class="beach-wind-rose" id="shelter-rose">${windRoseSVG(avg.dir, avg.speed, 110)}</div>
                 <div class="beach-wind-text">
-                    <h3>${windN} <span class="beaufort-badge" style="background:${bfColor};color:white">F${bf.force} ${bf.desc}</span></h3>
-                    <div class="wind-speed-big">${Math.round(avgSpeed)} kn · Ràfegues ${Math.round(avgGusts)} kn · ${Math.round(avgDir)}° (${windA})</div>
-                    <div class="wind-detail">Mar: ${waveH} m alçada d'ona</div>
+                    <h3 id="shelter-wind-name">${windN} <span class="beaufort-badge" style="background:${bfColor};color:white">F${bf.force} ${bf.desc}</span></h3>
+                    <div class="wind-speed-big" id="shelter-wind-speed">${Math.round(avg.speed)} kn · Ràfegues ${Math.round(avg.gusts)} kn · ${Math.round(avg.dir)}° (${windA})</div>
+                    <div class="wind-detail" id="shelter-wind-detail">Mar: ${waveH} m alçada d'ona</div>
+                    <div class="station-extra-data" id="shelter-extra" style="display:none"></div>
                 </div>
             </div>
-            <div class="nav-conditions" style="background:${nav.bg}">
+            <div class="nav-conditions" id="shelter-nav-cond" style="background:${nav.bg}">
                 <div class="nav-conditions-dot" style="background:${nav.color};color:${nav.color}"></div>
                 <div>
                     <div class="nav-conditions-text" style="color:${nav.color}">${nav.text}</div>
@@ -1352,34 +1511,16 @@ function renderShelter(stationsData, marineData) {
                 </div>
             </div>
         </div>
-        ${shelteredPorts.length ? `
-            <div class="shelter-type-header">&#9875; Ports amb recer</div>
-            <div class="beach-grid">
-                ${shelteredPorts.map(p => `
-                    <div class="beach-card">
-                        <div class="beach-card-name">${p.name} <span class="beach-card-type port">Port</span></div>
-                        <div class="beach-card-desc">${p.desc}</div>
-                    </div>
-                `).join('')}
-            </div>
-        ` : ''}
-        ${shelteredFondeigs.length ? `
-            <div class="shelter-type-header">&#9875; Fondeigs protegits</div>
-            <div class="beach-grid">
-                ${shelteredFondeigs.map(p => `
-                    <div class="beach-card">
-                        <div class="beach-card-name">${p.name} <span class="beach-card-type fondeig">Fondeig</span></div>
-                        <div class="beach-card-desc">${p.desc}</div>
-                    </div>
-                `).join('')}
-            </div>
-        ` : ''}
-        ${exposed.length ? `
-            <div class="beach-avoid">
-                &#9888;&#65039; <strong>Exposats al ${windN}:</strong> ${exposed.map(p => p.name).join(', ')}
-            </div>
-        ` : ''}
+        <div id="shelter-ports"></div>
+        <div id="shelter-fondeigs"></div>
+        <div id="shelter-exposed"></div>
     `;
+
+    updateShelterHero('avg');
+
+    document.getElementById('shelter-station-select').addEventListener('change', (e) => {
+        updateShelterHero(e.target.value);
+    });
 }
 
 // ============================================================
