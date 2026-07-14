@@ -619,6 +619,155 @@
             .nav-inner a { padding: 0.7rem 0.75rem; font-size: 0.8rem; }
         }
 
+        /* === TIDES === */
+        .tide-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .tide-header {
+            background: linear-gradient(135deg, var(--blue-deep) 0%, #1b4d6e 50%, #1a6b8a 100%);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .tide-current {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .tide-level-ring {
+            width: 72px;
+            height: 72px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .tide-level-ring svg { width: 100%; height: 100%; }
+        .tide-level-value {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .tide-level-num {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .tide-level-unit {
+            font-size: 0.6rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tide-info h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+        .tide-info .tide-station {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+        .tide-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 0.3rem;
+        }
+        .tide-trend.rising { background: rgba(46,204,113,0.2); color: #2ecc71; }
+        .tide-trend.falling { background: rgba(231,76,60,0.2); color: #e74c3c; }
+        .tide-trend.stable { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+        .tide-trend-arrow { font-size: 1rem; }
+        .tide-extremes {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .tide-extreme {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            text-align: center;
+            min-width: 80px;
+        }
+        .tide-extreme-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+            margin-bottom: 0.15rem;
+        }
+        .tide-extreme-time {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .tide-extreme-height {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        .tide-extreme.high .tide-extreme-label { color: #5dade2; }
+        .tide-extreme.low .tide-extreme-label { color: #f0932b; }
+        .tide-chart-wrap {
+            padding: 1rem 1rem 0.8rem;
+            position: relative;
+        }
+        .tide-chart-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .tide-chart-svg {
+            width: 100%;
+            height: 180px;
+            display: block;
+        }
+        .tide-chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 0.6rem 0;
+            font-size: 0.72rem;
+            color: var(--text-light);
+        }
+        .tide-chart-legend span::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 3px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .legend-observed::before { background: #1abc9c; }
+        .legend-forecast::before { background: #5dade2; opacity: 0.6; }
+        .tide-note {
+            padding: 0.6rem 1.2rem 0.8rem;
+            font-size: 0.72rem;
+            color: var(--gray);
+            border-top: 1px solid #f0f0f0;
+        }
+        @media (max-width: 768px) {
+            .tide-header { flex-direction: column; align-items: flex-start; }
+            .tide-extremes { width: 100%; }
+            .tide-extreme { flex: 1; }
+            .tide-chart-svg { height: 150px; }
+        }
+
         /* === BEACH RECOMMENDATION === */
         .beach-hero {
             background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-navy) 50%, var(--blue-main) 100%);
@@ -808,6 +957,7 @@
             <a href="#zoom-estacio">Zoom estació</a>
             <a href="#estacions">Estacions</a>
             <a href="#marine">Mar</a>
+            <a href="#marees">Marees</a>
             <a href="#webcams">Webcams</a>
             <a href="#prediccio">Predicció</a>
         </div>
@@ -866,6 +1016,59 @@
             </div>
         </section>
 
+        <section id="marees">
+            <h2 class="section-title">Marees &middot; Port de Maó</h2>
+            <div class="tide-card">
+                <div class="tide-header" id="tide-header">
+                    <div class="tide-current">
+                        <div class="tide-level-ring" id="tide-ring">
+                            <svg viewBox="0 0 72 72">
+                                <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="5"/>
+                                <circle cx="36" cy="36" r="30" fill="none" stroke="#1abc9c" stroke-width="5"
+                                    stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="round"
+                                    transform="rotate(-90 36 36)" id="tide-ring-progress"/>
+                            </svg>
+                            <div class="tide-level-value">
+                                <span class="tide-level-num" id="tide-level-num">--</span>
+                                <span class="tide-level-unit">cm</span>
+                            </div>
+                        </div>
+                        <div class="tide-info">
+                            <h3>Nivell del mar</h3>
+                            <div class="tide-station">Mareògraf REDMAR &middot; Estació 3860</div>
+                            <div class="tide-trend stable" id="tide-trend">
+                                <span class="tide-trend-arrow">→</span> Carregant...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tide-extremes" id="tide-extremes">
+                        <div class="tide-extreme high">
+                            <div class="tide-extreme-label">Plenamar</div>
+                            <div class="tide-extreme-time" id="tide-high-time">--:--</div>
+                            <div class="tide-extreme-height" id="tide-high-val">-- cm</div>
+                        </div>
+                        <div class="tide-extreme low">
+                            <div class="tide-extreme-label">Baixamar</div>
+                            <div class="tide-extreme-time" id="tide-low-time">--:--</div>
+                            <div class="tide-extreme-height" id="tide-low-val">-- cm</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tide-chart-wrap">
+                    <div class="tide-chart-title">Últimes 24h + predicció 48h</div>
+                    <svg class="tide-chart-svg" id="tide-chart" viewBox="0 0 800 180" preserveAspectRatio="none"></svg>
+                    <div class="tide-chart-legend">
+                        <span class="legend-observed">Observat (mareògraf)</span>
+                        <span class="legend-forecast">Predicció (HAMSOM)</span>
+                    </div>
+                </div>
+                <div class="tide-note">
+                    Dades del mareògraf radar de Puertos del Estado (REDMAR) al Port de Maó. Rang de marees típic a Menorca: 5-25 cm.
+                    La variació del nivell inclou marea astronòmica, efecte barometric i empenta del vent.
+                </div>
+            </div>
+        </section>
+
         <section id="webcams">
             <h2 class="section-title">Webcams de costa</h2>
             <div class="webcams-grid" id="webcams-grid"></div>
@@ -907,7 +1110,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.1</div>
+        <div>Bufa a Menorca? &mdash; v3.2</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -918,6 +1121,7 @@
 // ============================================================
 
 const WORKER_URL = 'https://menorca-meteo-api.xroigg737.workers.dev';
+const TIDES_WORKER_URL = 'https://cns-wind-api.xroigg737.workers.dev';
 
 const STATIONS = [
     { id: 'mao', name: 'Port de Maó', lat: 39.8883, lon: 4.2656, desc: 'Costa est · Port principal' },
@@ -1708,6 +1912,228 @@ function setStatus(text, ok = true) {
 }
 
 // ============================================================
+// TIDES
+// ============================================================
+
+async function fetchTideData() {
+    const pad = n => String(n).padStart(2, '0');
+    const fmt = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}@${pad(d.getHours())}00`;
+    const now = new Date();
+    const from = new Date(now.getTime() - 24 * 3600000);
+    const to = new Date(now.getTime() + 1 * 3600000);
+
+    try {
+        const resp = await fetch(TIDES_WORKER_URL + '/tides');
+        if (resp.ok) return await resp.json();
+    } catch (_) {}
+
+    try {
+        const [obsResp, fcResp] = await Promise.all([
+            fetch(`https://poem.puertos.es/portus/ObservedHourlyLevel?fields=Datetime,SeaLevel&code=3860&from=${fmt(from)}&to=${fmt(to)}`),
+            fetch(`https://poem.puertos.es/portus/Ensemble/forecast?fields=Datetime,Source,SeaLevel&code=3860&sources=101`),
+        ]);
+        const observed = obsResp.ok ? await obsResp.json() : [];
+        const forecast = fcResp.ok ? await fcResp.json() : [];
+        return { observed, forecast };
+    } catch (e) {
+        console.warn('Tides not available:', e.message);
+        return null;
+    }
+}
+
+function parseTideObserved(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .filter(p => Array.isArray(p) && p.length === 2 && p[1] != null)
+        .map(p => ({ ts: p[0] * 1000, level: p[1] / 10 }))
+        .sort((a, b) => a.ts - b.ts);
+}
+
+function parseTideForecast(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .filter(p => Array.isArray(p) && p.length === 3 && p[2] != null)
+        .map(p => ({ ts: p[0] * 1000, level: p[2] / 10 }))
+        .sort((a, b) => a.ts - b.ts);
+}
+
+function findExtremes(points) {
+    if (points.length < 5) return [];
+    const extremes = [];
+    const window = 3;
+    for (let i = window; i < points.length - window; i++) {
+        const slice = points.slice(i - window, i + window + 1);
+        const vals = slice.map(p => p.level);
+        const max = Math.max(...vals);
+        const min = Math.min(...vals);
+        if (points[i].level === max && max - min > 0.5) {
+            extremes.push({ ...points[i], type: 'high' });
+        } else if (points[i].level === min && max - min > 0.5) {
+            extremes.push({ ...points[i], type: 'low' });
+        }
+    }
+    const deduped = [];
+    for (const e of extremes) {
+        const last = deduped[deduped.length - 1];
+        if (!last || e.type !== last.type || e.ts - last.ts > 4 * 3600000) {
+            deduped.push(e);
+        } else if ((e.type === 'high' && e.level > last.level) || (e.type === 'low' && e.level < last.level)) {
+            deduped[deduped.length - 1] = e;
+        }
+    }
+    return deduped;
+}
+
+function renderTideChart(observed, forecast) {
+    const svg = document.getElementById('tide-chart');
+    const W = 800, H = 180;
+    const PAD = { top: 25, bottom: 30, left: 45, right: 15 };
+
+    const allPoints = [...observed, ...forecast];
+    if (allPoints.length < 2) {
+        svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#95a5a6" font-size="13">Sense dades de marees disponibles</text>`;
+        return;
+    }
+
+    const tMin = allPoints[0].ts;
+    const tMax = allPoints[allPoints.length - 1].ts;
+    const levels = allPoints.map(p => p.level);
+    const lMin = Math.min(...levels);
+    const lMax = Math.max(...levels);
+    const lPad = Math.max((lMax - lMin) * 0.15, 0.5);
+
+    const scaleX = t => PAD.left + (t - tMin) / (tMax - tMin) * (W - PAD.left - PAD.right);
+    const scaleY = l => PAD.top + (1 - (l - (lMin - lPad)) / (lMax - lMin + 2 * lPad)) * (H - PAD.top - PAD.bottom);
+
+    let html = '';
+
+    html += `<defs>
+        <linearGradient id="tideGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1abc9c" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#1abc9c" stop-opacity="0.02"/>
+        </linearGradient>
+        <linearGradient id="tideFcGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#5dade2" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#5dade2" stop-opacity="0.02"/>
+        </linearGradient>
+    </defs>`;
+
+    const gridLevels = 5;
+    for (let i = 0; i <= gridLevels; i++) {
+        const l = lMin - lPad + (lMax - lMin + 2 * lPad) * i / gridLevels;
+        const y = scaleY(l);
+        html += `<line x1="${PAD.left}" y1="${y}" x2="${W - PAD.right}" y2="${y}" stroke="#e8eef3" stroke-width="0.5"/>`;
+        html += `<text x="${PAD.left - 6}" y="${y + 3.5}" text-anchor="end" fill="#95a5a6" font-size="9">${l.toFixed(1)}</text>`;
+    }
+
+    const hours = [];
+    const firstHour = new Date(tMin);
+    firstHour.setMinutes(0, 0, 0);
+    for (let t = firstHour.getTime(); t <= tMax; t += 3600000) {
+        if (t < tMin) continue;
+        const d = new Date(t);
+        const h = d.getHours();
+        if (h % 6 === 0) {
+            const x = scaleX(t);
+            html += `<line x1="${x}" y1="${PAD.top}" x2="${x}" y2="${H - PAD.bottom}" stroke="#e8eef3" stroke-width="0.5" stroke-dasharray="3,3"/>`;
+            const label = h === 0 ? d.toLocaleDateString('ca-ES', {day:'numeric',month:'short'}) : `${String(h).padStart(2,'0')}:00`;
+            html += `<text x="${x}" y="${H - PAD.bottom + 14}" text-anchor="middle" fill="#95a5a6" font-size="9">${label}</text>`;
+        }
+    }
+
+    if (observed.length > 1) {
+        const line = observed.map((p, i) => `${i === 0 ? 'M' : 'L'}${scaleX(p.ts).toFixed(1)},${scaleY(p.level).toFixed(1)}`).join(' ');
+        const areaBottom = H - PAD.bottom;
+        const area = line + ` L${scaleX(observed[observed.length-1].ts).toFixed(1)},${areaBottom} L${scaleX(observed[0].ts).toFixed(1)},${areaBottom} Z`;
+        html += `<path d="${area}" fill="url(#tideGrad)"/>`;
+        html += `<path d="${line}" fill="none" stroke="#1abc9c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+
+    if (forecast.length > 1) {
+        const line = forecast.map((p, i) => `${i === 0 ? 'M' : 'L'}${scaleX(p.ts).toFixed(1)},${scaleY(p.level).toFixed(1)}`).join(' ');
+        const areaBottom = H - PAD.bottom;
+        const area = line + ` L${scaleX(forecast[forecast.length-1].ts).toFixed(1)},${areaBottom} L${scaleX(forecast[0].ts).toFixed(1)},${areaBottom} Z`;
+        html += `<path d="${area}" fill="url(#tideFcGrad)"/>`;
+        html += `<path d="${line}" fill="none" stroke="#5dade2" stroke-width="2" stroke-dasharray="6,4" stroke-linejoin="round" opacity="0.7"/>`;
+    }
+
+    const extremes = findExtremes(allPoints);
+    extremes.forEach(e => {
+        const x = scaleX(e.ts), y = scaleY(e.level);
+        const color = e.type === 'high' ? '#5dade2' : '#f0932b';
+        const timeStr = new Date(e.ts).toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+        html += `<circle cx="${x}" cy="${y}" r="4" fill="${color}" stroke="white" stroke-width="1.5"/>`;
+        const labelY = e.type === 'high' ? y - 10 : y + 14;
+        html += `<text x="${x}" y="${labelY}" text-anchor="middle" fill="${color}" font-size="8.5" font-weight="700">${e.level.toFixed(1)} cm · ${timeStr}</text>`;
+    });
+
+    const now = Date.now();
+    if (now >= tMin && now <= tMax) {
+        const nx = scaleX(now);
+        html += `<line x1="${nx}" y1="${PAD.top}" x2="${nx}" y2="${H - PAD.bottom}" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>`;
+        html += `<text x="${nx}" y="${PAD.top - 5}" text-anchor="middle" fill="#e74c3c" font-size="8" font-weight="700">ARA</text>`;
+    }
+
+    svg.innerHTML = html;
+}
+
+function renderTideHeader(observed, forecast) {
+    const allPoints = [...observed, ...forecast];
+    if (observed.length < 2) return;
+
+    const last = observed[observed.length - 1];
+    const prevIdx = Math.max(0, observed.length - 4);
+    const prev = observed[prevIdx];
+    const levelCm = last.level;
+    const hoursSpan = Math.max(1, (last.ts - prev.ts) / 3600000);
+    const diff = (levelCm - prev.level) / hoursSpan;
+
+    document.getElementById('tide-level-num').textContent = levelCm.toFixed(1);
+
+    const range = Math.max(...allPoints.map(p => p.level)) - Math.min(...allPoints.map(p => p.level));
+    const norm = range > 0 ? Math.min((levelCm - Math.min(...allPoints.map(p => p.level))) / range, 1) : 0.5;
+    const circumference = 188.5;
+    document.getElementById('tide-ring-progress').setAttribute('stroke-dashoffset', (circumference * (1 - norm)).toFixed(1));
+
+    const trendEl = document.getElementById('tide-trend');
+    if (Math.abs(diff) < 0.3) {
+        trendEl.className = 'tide-trend stable';
+        trendEl.innerHTML = '<span class="tide-trend-arrow">→</span> Estable';
+    } else if (diff > 0) {
+        trendEl.className = 'tide-trend rising';
+        trendEl.innerHTML = `<span class="tide-trend-arrow">↑</span> Pujant (+${diff.toFixed(1)} cm/h)`;
+    } else {
+        trendEl.className = 'tide-trend falling';
+        trendEl.innerHTML = `<span class="tide-trend-arrow">↓</span> Baixant (${diff.toFixed(1)} cm/h)`;
+    }
+
+    const now = Date.now();
+    const extremes = findExtremes(allPoints);
+    const nextHigh = extremes.find(e => e.type === 'high' && e.ts > now);
+    const nextLow = extremes.find(e => e.type === 'low' && e.ts > now);
+
+    if (nextHigh) {
+        document.getElementById('tide-high-time').textContent = new Date(nextHigh.ts).toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('tide-high-val').textContent = `${nextHigh.level.toFixed(1)} cm`;
+    }
+    if (nextLow) {
+        document.getElementById('tide-low-time').textContent = new Date(nextLow.ts).toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('tide-low-val').textContent = `${nextLow.level.toFixed(1)} cm`;
+    }
+}
+
+async function loadTideData() {
+    const data = await fetchTideData();
+    if (!data) return;
+
+    const observed = parseTideObserved(data.observed);
+    const forecast = parseTideForecast(data.forecast);
+
+    renderTideHeader(observed, forecast);
+    renderTideChart(observed, forecast);
+}
+
+// ============================================================
 // MAIN
 // ============================================================
 
@@ -1722,6 +2148,8 @@ async function loadAllData() {
             fetchHourlyForecast(),
             fetchMarineForecast(),
         ]);
+
+        loadTideData();
 
         const stationsData = mergeStationData(modelStations, mcStations);
         const realCount = stationsData.filter(s => s.source !== 'model').length;
