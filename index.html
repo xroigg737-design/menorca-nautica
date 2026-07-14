@@ -1111,7 +1111,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.5</div>
+        <div>Bufa a Menorca? &mdash; v3.6</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1417,9 +1417,8 @@ let windParticleLayer = null;
 function initMap() {
     map = L.map('map', { zoomControl: true }).setView([39.97, 4.08], 11);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.esri.com/">Esri</a> &middot; Sources: Esri, Maxar, Earthstar, USDA, USGS, AeroGRID, IGN',
         maxZoom: 18
     }).addTo(map);
 }
@@ -1655,9 +1654,9 @@ const WindParticles = L.Layer.extend({
             if (p.age > p.maxAge - 10) a = Math.max(0, (p.maxAge - p.age) / 10);
 
             const [cr, cg, cb] = windyColorRGB(spd);
-            ctx.globalAlpha = a * 0.85;
+            ctx.globalAlpha = a * 0.92;
             ctx.strokeStyle = `rgb(${cr},${cg},${cb})`;
-            ctx.lineWidth = 1.2;
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
             ctx.lineTo(to.x, to.y);
