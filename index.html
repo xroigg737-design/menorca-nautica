@@ -169,11 +169,11 @@
         #map {
             height: 460px;
             border-radius: var(--radius);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            box-shadow: var(--shadow);
             z-index: 1;
-            border: 2px solid rgba(26, 188, 156, 0.15);
+            border: 2px solid rgba(12, 35, 64, 0.15);
         }
-        .leaflet-container { background: #0a1628; }
+        .leaflet-container { background: #e8eef3; }
         .wind-marker-v2 {
             display: flex;
             flex-direction: column;
@@ -1111,7 +1111,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.3</div>
+        <div>Bufa a Menorca? &mdash; v3.4</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1417,32 +1417,45 @@ let windParticleLayer = null;
 function initMap() {
     map = L.map('map', { zoomControl: true }).setView([39.97, 4.08], 11);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
         subdomains: 'abcd',
-        maxZoom: 18,
-        opacity: 0.85
-    }).addTo(map);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd',
-        maxZoom: 18,
-        opacity: 0.5,
-        pane: 'overlayPane'
+        maxZoom: 18
     }).addTo(map);
 }
 
 // --- Wind particle animation ---
 
-const WindParticles = L.Layer.extend({
-    options: { particleCount: 350, maxAge: 80, speedFactor: 0.4, lineWidth: 1.8, opacity: 0.55 },
+// Paleta Windy (mateixa que Avui Regu)
+function windyColorRGB(kn) {
+    const stops = [
+        [0,  130,155,220], [2,   90,150,210], [6,  100,200,220],
+        [10, 100,200,170], [14, 110,220,110], [17,  70,210, 70],
+        [21, 220,210,100], [25, 215,170, 75], [29, 215,145,120],
+        [33, 180, 75,105], [37, 230,110,180], [41, 160,100,200],
+    ];
+    if (kn <= stops[0][0]) return stops[0].slice(1);
+    for (let i = 1; i < stops.length; i++) {
+        if (kn <= stops[i][0]) {
+            const t = (kn - stops[i-1][0]) / (stops[i][0] - stops[i-1][0]);
+            return [
+                Math.round(stops[i-1][1] + t * (stops[i][1] - stops[i-1][1])),
+                Math.round(stops[i-1][2] + t * (stops[i][2] - stops[i-1][2])),
+                Math.round(stops[i-1][3] + t * (stops[i][3] - stops[i-1][3])),
+            ];
+        }
+    }
+    return stops[stops.length - 1].slice(1);
+}
 
+const WindParticles = L.Layer.extend({
     initialize(stations, opts) {
         L.setOptions(this, opts);
         this._stations = stations;
         this._particles = [];
         this._animId = null;
         this._windGrid = null;
+        this._avgSpeed = 0;
     },
 
     onAdd(map) {
@@ -1472,7 +1485,21 @@ const WindParticles = L.Layer.extend({
 
     setStations(stations) {
         this._stations = stations;
+        this._avgSpeed = stations.reduce((s, st) => s + st.wind, 0) / (stations.length || 1);
         this._buildGrid();
+    },
+
+    // Escala logarítmica (model Avui Regu)
+    _wf(kn) { return Math.log(1 + kn) / Math.log(1 + 25); },
+
+    _maxAge() { return 40 + this._wf(this._avgSpeed) * 100; },
+
+    _fadeValue() { return 0.90 + this._wf(this._avgSpeed) * 0.065; },
+
+    _numParticles() {
+        const area = this._canvas.width * this._canvas.height;
+        const mult = 0.3 + this._wf(this._avgSpeed) * 2.2;
+        return Math.max(20, Math.round(area * 0.00008 * mult));
     },
 
     _onMapChange() {
@@ -1502,8 +1529,7 @@ const WindParticles = L.Layer.extend({
             for (let c = 0; c < COLS; c++) {
                 const lat = bounds.getSouth() + (r + 0.5) * latStep;
                 const lon = bounds.getWest() + (c + 0.5) * lonStep;
-                const w = this._idw(lat, lon);
-                this._windGrid.data.push(w);
+                this._windGrid.data.push(this._idw(lat, lon));
             }
         }
     },
@@ -1515,7 +1541,7 @@ const WindParticles = L.Layer.extend({
             const d = Math.sqrt((lat - s.lat) ** 2 + (lon - s.lon) ** 2);
             if (d < 0.001) {
                 const rad = (s.dir + 180) * Math.PI / 180;
-                return { u: Math.sin(rad) * s.wind, v: -Math.cos(rad) * s.wind };
+                return { u: Math.sin(rad) * s.wind, v: -Math.cos(rad) * s.wind, spd: s.wind };
             }
             const w = 1 / (d ** p);
             const rad = (s.dir + 180) * Math.PI / 180;
@@ -1523,12 +1549,13 @@ const WindParticles = L.Layer.extend({
             sumWy += w * (-Math.cos(rad) * s.wind);
             sumW += w;
         }
-        return { u: sumWx / sumW, v: sumWy / sumW };
+        const u = sumWx / sumW, v = sumWy / sumW;
+        return { u, v, spd: Math.sqrt(u * u + v * v) };
     },
 
     _getWind(lat, lon) {
         const g = this._windGrid;
-        if (!g) return { u: 0, v: 0 };
+        if (!g) return { u: 0, v: 0, spd: 0 };
         const c = (lon - g.bounds.getWest()) / g.lonStep - 0.5;
         const r = (lat - g.bounds.getSouth()) / g.latStep - 0.5;
         const ci = Math.max(0, Math.min(g.cols - 2, Math.floor(c)));
@@ -1537,25 +1564,31 @@ const WindParticles = L.Layer.extend({
         const idx = (ri2, ci2) => Math.min(ri2, g.rows - 1) * g.cols + Math.min(ci2, g.cols - 1);
         const w00 = g.data[idx(ri, ci)], w10 = g.data[idx(ri, ci + 1)];
         const w01 = g.data[idx(ri + 1, ci)], w11 = g.data[idx(ri + 1, ci + 1)];
+        const lerp = (a, b, c2, d, cf2, rf2) => (1-cf2)*(1-rf2)*a + cf2*(1-rf2)*b + (1-cf2)*rf2*c2 + cf2*rf2*d;
         return {
-            u: (1 - cf) * (1 - rf) * w00.u + cf * (1 - rf) * w10.u + (1 - cf) * rf * w01.u + cf * rf * w11.u,
-            v: (1 - cf) * (1 - rf) * w00.v + cf * (1 - rf) * w10.v + (1 - cf) * rf * w01.v + cf * rf * w11.v,
+            u: lerp(w00.u, w10.u, w01.u, w11.u, cf, rf),
+            v: lerp(w00.v, w10.v, w01.v, w11.v, cf, rf),
+            spd: lerp(w00.spd, w10.spd, w01.spd, w11.spd, cf, rf),
         };
     },
 
     _initParticles() {
         const bounds = this._map.getBounds();
+        const n = this._numParticles();
+        const ma = this._maxAge();
         this._particles = [];
-        for (let i = 0; i < this.options.particleCount; i++) {
-            this._particles.push(this._newParticle(bounds, true));
+        for (let i = 0; i < n; i++) {
+            this._particles.push(this._spawn(bounds, ma, true));
         }
     },
 
-    _newParticle(bounds, randomAge) {
+    _spawn(bounds, ma, rndAge) {
         return {
             lat: bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth()),
             lon: bounds.getWest() + Math.random() * (bounds.getEast() - bounds.getWest()),
-            age: randomAge ? Math.floor(Math.random() * this.options.maxAge) : 0,
+            age: rndAge ? Math.floor(Math.random() * ma) : 0,
+            maxAge: ma + ((Math.random() * 20 - 10) | 0),
+            plat: NaN, plon: NaN,
         };
     },
 
@@ -1566,50 +1599,71 @@ const WindParticles = L.Layer.extend({
 
     _step() {
         const ctx = this._ctx;
-        const w = this._canvas.width, h = this._canvas.height;
+        const cw = this._canvas.width, ch = this._canvas.height;
         const bounds = this._map.getBounds();
+        const ma = this._maxAge();
 
+        // Ajustar nombre de partícules dinàmicament
+        const target = this._numParticles();
+        while (this._particles.length < target) this._particles.push(this._spawn(bounds, ma, true));
+        while (this._particles.length > target) this._particles.pop();
+
+        // Fade proporcional a la intensitat (model Avui Regu)
+        const prev = ctx.globalCompositeOperation;
         ctx.globalCompositeOperation = 'destination-in';
-        ctx.fillStyle = 'rgba(0,0,0,0.91)';
-        ctx.fillRect(0, 0, w, h);
-        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = this._fadeValue();
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.globalCompositeOperation = prev;
+        ctx.globalAlpha = 1;
+
+        // Velocitat base molt baixa + proporcional al vent
+        const BASE_SPD = 0.03;
+        const SPD_K = 0.025;
+
+        ctx.lineCap = 'round';
 
         for (const p of this._particles) {
-            if (p.age >= this.options.maxAge) {
-                Object.assign(p, this._newParticle(bounds, false));
+            if (p.age >= p.maxAge || p.lat < bounds.getSouth() || p.lat > bounds.getNorth() ||
+                p.lon < bounds.getWest() || p.lon > bounds.getEast()) {
+                Object.assign(p, this._spawn(bounds, ma, false));
+                continue;
             }
 
             const wind = this._getWind(p.lat, p.lon);
-            const speed = Math.sqrt(wind.u ** 2 + wind.v ** 2);
-            const sf = this.options.speedFactor / this._map.getZoom();
+            const spd = wind.spd;
+            const moveScale = (BASE_SPD + spd * SPD_K) / this._map.getZoom();
 
-            const newLat = p.lat + wind.v * sf * 0.01;
-            const newLon = p.lon + wind.u * sf * 0.01;
+            // Jitter mínim (com Avui Regu)
+            const jx = (Math.random() - 0.5) * 0.1;
+            const jy = (Math.random() - 0.5) * 0.1;
 
-            const from = this._map.latLngToContainerPoint([p.lat, p.lon]);
-            const to = this._map.latLngToContainerPoint([newLat, newLon]);
+            p.plat = p.lat;
+            p.plon = p.lon;
+            p.lat += (wind.v * moveScale * 0.008) + jy * 0.001;
+            p.lon += (wind.u * moveScale * 0.008) + jx * 0.001;
+            p.age++;
 
-            const alpha = Math.min(1, speed / 20) * this.options.opacity * (1 - p.age / this.options.maxAge * 0.5);
-            const hue = speed < 8 ? 160 : speed < 15 ? 200 : speed < 22 ? 30 : 0;
-            const sat = speed < 8 ? '60%' : '80%';
-            const lum = speed < 8 ? '70%' : speed < 15 ? '75%' : '65%';
+            if (isNaN(p.plat)) continue;
 
+            const from = this._map.latLngToContainerPoint([p.plat, p.plon]);
+            const to = this._map.latLngToContainerPoint([p.lat, p.lon]);
+
+            // Opacitat: fade in/out suau
+            let a = 1;
+            if (p.age < 6) a = p.age / 6;
+            if (p.age > p.maxAge - 10) a = Math.max(0, (p.maxAge - p.age) / 10);
+
+            const [cr, cg, cb] = windyColorRGB(spd);
+            ctx.globalAlpha = a * 0.85;
+            ctx.strokeStyle = `rgb(${cr},${cg},${cb})`;
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
             ctx.moveTo(from.x, from.y);
             ctx.lineTo(to.x, to.y);
-            ctx.strokeStyle = `hsla(${hue},${sat},${lum},${alpha.toFixed(2)})`;
-            ctx.lineWidth = this.options.lineWidth * Math.min(1.5, 0.5 + speed / 15);
             ctx.stroke();
-
-            p.lat = newLat;
-            p.lon = newLon;
-            p.age++;
-
-            if (p.lat < bounds.getSouth() || p.lat > bounds.getNorth() ||
-                p.lon < bounds.getWest() || p.lon > bounds.getEast()) {
-                Object.assign(p, this._newParticle(bounds, false));
-            }
         }
+        ctx.globalAlpha = 1;
     },
 });
 
