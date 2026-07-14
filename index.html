@@ -769,6 +769,90 @@
             .tide-chart-svg { height: 150px; }
         }
 
+        /* === BUOY (Boia de Maó) === */
+        .buoy-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .buoy-header {
+            background: linear-gradient(135deg, #0c3547 0%, #1a5276 50%, #1b6b8a 100%);
+            color: white;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .buoy-wave-ring {
+            width: 80px; height: 80px;
+            position: relative; flex-shrink: 0;
+        }
+        .buoy-wave-ring svg { width: 100%; height: 100%; }
+        .buoy-wave-value {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+        .buoy-wave-num { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+        .buoy-wave-unit { font-size: 0.6rem; opacity: 0.7; margin-top: 2px; }
+        .buoy-wave-label { font-size: 0.6rem; opacity: 0.6; }
+        .buoy-summary { flex: 1; }
+        .buoy-summary h3 { margin: 0 0 0.3rem; font-size: 1rem; font-weight: 700; }
+        .buoy-summary .buoy-station { font-size: 0.72rem; opacity: 0.7; }
+        .buoy-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1px;
+            background: #f0f0f0;
+        }
+        .buoy-metric {
+            background: var(--white);
+            padding: 0.8rem 1rem;
+            text-align: center;
+        }
+        .buoy-metric-icon { font-size: 1.1rem; margin-bottom: 0.2rem; }
+        .buoy-metric-value { font-size: 1.2rem; font-weight: 800; color: var(--blue-deep); }
+        .buoy-metric-value .unit { font-size: 0.7rem; font-weight: 400; color: var(--text-light); }
+        .buoy-metric-label { font-size: 0.65rem; color: var(--text-light); margin-top: 0.1rem; }
+        .buoy-chart-wrap {
+            padding: 1rem 1.2rem;
+        }
+        .buoy-chart-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--blue-deep);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .buoy-chart-svg {
+            width: 100%; height: 180px;
+            display: block;
+        }
+        .buoy-chart-legend {
+            display: flex; gap: 1rem; justify-content: center;
+            margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-light);
+        }
+        .buoy-chart-legend span::before {
+            content: ''; display: inline-block;
+            width: 12px; height: 3px; border-radius: 2px;
+            margin-right: 4px; vertical-align: middle;
+        }
+        .buoy-chart-legend .legend-hs::before { background: #3498db; }
+        .buoy-chart-legend .legend-hmax::before { background: #e74c3c; }
+        .buoy-note {
+            padding: 0.6rem 1.2rem 0.8rem;
+            font-size: 0.72rem;
+            color: var(--gray);
+            border-top: 1px solid #f0f0f0;
+        }
+        @media (max-width: 768px) {
+            .buoy-header { flex-direction: column; align-items: flex-start; }
+            .buoy-metrics { grid-template-columns: repeat(3, 1fr); }
+            .buoy-chart-svg { height: 150px; }
+        }
+
         /* === BEACH RECOMMENDATION === */
         .beach-hero {
             background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-navy) 50%, var(--blue-main) 100%);
@@ -959,6 +1043,7 @@
             <a href="#estacions">Estacions</a>
             <a href="#marine">Mar</a>
             <a href="#marees">Marees</a>
+            <a href="#boia">Boia</a>
             <a href="#webcams">Webcams</a>
             <a href="#prediccio">Predicció</a>
         </div>
@@ -1070,6 +1155,50 @@
             </div>
         </section>
 
+        <section id="boia">
+            <h2 class="section-title">Boia de Maó &middot; Estat del mar</h2>
+            <div class="buoy-card">
+                <div class="buoy-header" id="buoy-header">
+                    <div class="buoy-wave-ring" id="buoy-ring">
+                        <svg viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="5"/>
+                            <circle cx="40" cy="40" r="34" fill="none" stroke="#3498db" stroke-width="5"
+                                stroke-dasharray="213.6" stroke-dashoffset="213.6"
+                                stroke-linecap="round" transform="rotate(-90 40 40)" id="buoy-ring-progress"/>
+                        </svg>
+                        <div class="buoy-wave-value">
+                            <span class="buoy-wave-label">Hs</span>
+                            <span class="buoy-wave-num" id="buoy-hs-num">--</span>
+                            <span class="buoy-wave-unit">m</span>
+                        </div>
+                    </div>
+                    <div class="buoy-summary">
+                        <h3 id="buoy-sea-state">Carregant...</h3>
+                        <div class="buoy-station">Boia REDEXT 2838 · 39.71°N, 4.42°E · Profunditat 300m</div>
+                    </div>
+                </div>
+                <div class="buoy-metrics" id="buoy-metrics">
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🌊</div><div class="buoy-metric-value" id="buoy-hmax">--<span class="unit"> m</span></div><div class="buoy-metric-label">Hmax</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">⏱️</div><div class="buoy-metric-value" id="buoy-tp">--<span class="unit"> s</span></div><div class="buoy-metric-label">Període pic</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🧭</div><div class="buoy-metric-value" id="buoy-wave-dir">--<span class="unit">°</span></div><div class="buoy-metric-label">Dir. onatge</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">💨</div><div class="buoy-metric-value" id="buoy-wind">--<span class="unit"> kn</span></div><div class="buoy-metric-label">Vent mar endins</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🌡️</div><div class="buoy-metric-value" id="buoy-sst">--<span class="unit"> °C</span></div><div class="buoy-metric-label">Temp. mar</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🔵</div><div class="buoy-metric-value" id="buoy-pressure">--<span class="unit"> hPa</span></div><div class="buoy-metric-label">Pressió</div></div>
+                </div>
+                <div class="buoy-chart-wrap">
+                    <div class="buoy-chart-title">Evolució onatge — últimes 48h</div>
+                    <svg class="buoy-chart-svg" id="buoy-chart" viewBox="0 0 800 180" preserveAspectRatio="none"></svg>
+                    <div class="buoy-chart-legend">
+                        <span class="legend-hs">Hs (significativa)</span>
+                        <span class="legend-hmax">Hmax (màxima)</span>
+                    </div>
+                </div>
+                <div class="buoy-note">
+                    Dades de la boia oceanogràfica de Puertos del Estado (REDEXT) al SE de Menorca. Mesura onatge, vent, temperatura i pressió cada hora a 300m de profunditat.
+                </div>
+            </div>
+        </section>
+
         <section id="webcams">
             <h2 class="section-title">Webcams de costa</h2>
             <div class="webcams-grid" id="webcams-grid"></div>
@@ -1111,7 +1240,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.6</div>
+        <div>Bufa a Menorca? &mdash; v3.7</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -2386,6 +2515,209 @@ async function loadTideData() {
 }
 
 // ============================================================
+// BUOY — Boia de Maó (REDEXT 2838)
+// ============================================================
+
+async function fetchBuoyData() {
+    try {
+        const r = await fetch(TIDES_WORKER_URL + '/buoy');
+        if (!r.ok) throw new Error('Buoy fetch failed');
+        return await r.json();
+    } catch (e) {
+        console.error('Buoy error:', e);
+        return null;
+    }
+}
+
+function parseBuoyData(raw) {
+    if (!raw || !Array.isArray(raw) || raw.length < 2) return null;
+    const headers = raw[0];
+    const rows = raw[1];
+    if (!rows || !rows.length) return null;
+
+    const paramIdx = {};
+    headers.forEach((h, i) => {
+        if (i === 0) return;
+        const name = h.replace(/\s*\(.*\)/, '').trim();
+        paramIdx[name] = i;
+    });
+
+    const series = rows.map(row => {
+        const ts = row[0] * 1000;
+        const get = (name) => {
+            const idx = paramIdx[name];
+            if (idx == null || !row[idx]) return null;
+            const [val, qc] = row[idx];
+            return qc <= 2 ? val : null;
+        };
+        return {
+            ts,
+            hs: get('Hm0'),
+            hmax: get('Hmax'),
+            tp: get('Tp'),
+            tm02: get('Tm02'),
+            waveDir: get('MeanDir'),
+            windSpeed: get('WindSpeed'),
+            windDir: get('WindDir'),
+            windMax: get('WindSpeedMax'),
+            sst: get('WaterTemp'),
+            pressure: get('AirPressure'),
+        };
+    }).filter(d => d.hs != null);
+
+    return series;
+}
+
+function getSeaStateText(hs) {
+    if (hs == null) return 'Sense dades';
+    if (hs < 0.1) return 'Mar en calma';
+    if (hs < 0.5) return 'Mar rissada';
+    if (hs < 1.25) return 'Marejol';
+    if (hs < 2.5) return 'Mar de fons';
+    if (hs < 4) return 'Mar agitada';
+    if (hs < 6) return 'Mar gruixuda';
+    if (hs < 9) return 'Mar molt gruixuda';
+    return 'Mar enorme';
+}
+
+function getSeaStateColor(hs) {
+    if (hs < 0.5) return '#2ecc71';
+    if (hs < 1.25) return '#3498db';
+    if (hs < 2.5) return '#f39c12';
+    if (hs < 4) return '#e67e22';
+    return '#e74c3c';
+}
+
+function renderBuoyHeader(series) {
+    if (!series || !series.length) return;
+    const last = series[series.length - 1];
+
+    const hsNum = document.getElementById('buoy-hs-num');
+    const seaState = document.getElementById('buoy-sea-state');
+    const ring = document.getElementById('buoy-ring-progress');
+
+    if (last.hs != null) {
+        hsNum.textContent = last.hs.toFixed(1);
+        seaState.textContent = getSeaStateText(last.hs);
+
+        const maxHs = 6;
+        const pct = Math.min(1, last.hs / maxHs);
+        const circ = 2 * Math.PI * 34;
+        ring.setAttribute('stroke-dashoffset', (circ * (1 - pct)).toFixed(1));
+        ring.setAttribute('stroke', getSeaStateColor(last.hs));
+    }
+
+    const msToKn = v => v != null ? (v * 1.9438).toFixed(1) : '--';
+
+    document.getElementById('buoy-hmax').innerHTML = (last.hmax != null ? last.hmax.toFixed(1) : '--') + '<span class="unit"> m</span>';
+    document.getElementById('buoy-tp').innerHTML = (last.tp != null ? last.tp.toFixed(1) : '--') + '<span class="unit"> s</span>';
+    document.getElementById('buoy-wave-dir').innerHTML = (last.waveDir != null ? Math.round(last.waveDir) + '° ' + getWindAbbr(last.waveDir) : '--') + '';
+    document.getElementById('buoy-wind').innerHTML = msToKn(last.windSpeed) + '<span class="unit"> kn</span>';
+    document.getElementById('buoy-sst').innerHTML = (last.sst != null ? last.sst.toFixed(1) : '--') + '<span class="unit"> °C</span>';
+    document.getElementById('buoy-pressure').innerHTML = (last.pressure != null ? last.pressure.toFixed(0) : '--') + '<span class="unit"> hPa</span>';
+}
+
+function renderBuoyChart(series) {
+    const svg = document.getElementById('buoy-chart');
+    if (!svg || !series || series.length < 2) return;
+
+    const W = 800, H = 180;
+    const pad = { top: 20, right: 15, bottom: 28, left: 40 };
+    const cw = W - pad.left - pad.right;
+    const ch = H - pad.top - pad.bottom;
+
+    const tMin = series[0].ts;
+    const tMax = series[series.length - 1].ts;
+    const tRange = tMax - tMin || 1;
+
+    let hsMax = 0;
+    series.forEach(d => {
+        if (d.hs != null && d.hs > hsMax) hsMax = d.hs;
+        if (d.hmax != null && d.hmax > hsMax) hsMax = d.hmax;
+    });
+    hsMax = Math.max(1, Math.ceil(hsMax * 2) / 2);
+
+    const tx = t => pad.left + ((t - tMin) / tRange) * cw;
+    const ty = v => pad.top + ch - (v / hsMax) * ch;
+
+    let html = '';
+
+    // Grid
+    const steps = Math.max(2, Math.ceil(hsMax / 0.5));
+    for (let i = 0; i <= steps; i++) {
+        const v = (i / steps) * hsMax;
+        const y = ty(v);
+        html += `<line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="#e8e8e8" stroke-width="0.5"/>`;
+        html += `<text x="${pad.left - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="#999">${v.toFixed(1)}</text>`;
+    }
+
+    // Time labels
+    const now = new Date();
+    for (let h = 0; h < tRange / 3600000; h += 6) {
+        const t = tMin + h * 3600000;
+        const x = tx(t);
+        const d = new Date(t);
+        const label = d.getHours() === 0
+            ? d.toLocaleDateString('ca-ES', { day: 'numeric', month: 'short' })
+            : d.getHours() + 'h';
+        html += `<line x1="${x}" y1="${pad.top}" x2="${x}" y2="${H - pad.bottom}" stroke="#f0f0f0" stroke-width="0.5"/>`;
+        html += `<text x="${x}" y="${H - pad.bottom + 14}" text-anchor="middle" font-size="9" fill="#999">${label}</text>`;
+    }
+
+    // Hs fill gradient
+    html += `<defs><linearGradient id="hsFill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3498db" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#3498db" stop-opacity="0.02"/>
+    </linearGradient></defs>`;
+
+    // Hs area
+    let hsPath = '', hsLine = '';
+    let started = false;
+    series.forEach(d => {
+        if (d.hs == null) return;
+        const x = tx(d.ts), y = ty(d.hs);
+        if (!started) { hsPath = `M${x},${ty(0)} L${x},${y}`; hsLine = `M${x},${y}`; started = true; }
+        else { hsPath += ` L${x},${y}`; hsLine += ` L${x},${y}`; }
+    });
+    if (started) {
+        const lastHs = series.filter(d => d.hs != null).pop();
+        hsPath += ` L${tx(lastHs.ts)},${ty(0)} Z`;
+        html += `<path d="${hsPath}" fill="url(#hsFill)"/>`;
+        html += `<path d="${hsLine}" fill="none" stroke="#3498db" stroke-width="2"/>`;
+    }
+
+    // Hmax line
+    let hmaxLine = '', hmStarted = false;
+    series.forEach(d => {
+        if (d.hmax == null) return;
+        const x = tx(d.ts), y = ty(d.hmax);
+        if (!hmStarted) { hmaxLine = `M${x},${y}`; hmStarted = true; }
+        else hmaxLine += ` L${x},${y}`;
+    });
+    if (hmStarted) {
+        html += `<path d="${hmaxLine}" fill="none" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>`;
+    }
+
+    // "ARA" line
+    const nowX = tx(Date.now());
+    if (nowX > pad.left && nowX < W - pad.right) {
+        html += `<line x1="${nowX}" y1="${pad.top}" x2="${nowX}" y2="${H - pad.bottom}" stroke="#e74c3c" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
+        html += `<text x="${nowX}" y="${pad.top - 4}" text-anchor="middle" font-size="8" fill="#e74c3c" font-weight="700">ARA</text>`;
+    }
+
+    svg.innerHTML = html;
+}
+
+async function loadBuoyData() {
+    const raw = await fetchBuoyData();
+    if (!raw) return;
+    const series = parseBuoyData(raw);
+    if (!series || !series.length) return;
+    renderBuoyHeader(series);
+    renderBuoyChart(series);
+}
+
+// ============================================================
 // MAIN
 // ============================================================
 
@@ -2402,6 +2734,7 @@ async function loadAllData() {
         ]);
 
         loadTideData();
+        loadBuoyData();
 
         const stationsData = mergeStationData(modelStations, mcStations);
         const realCount = stationsData.filter(s => s.source !== 'model').length;
