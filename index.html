@@ -169,10 +169,11 @@
         #map {
             height: 460px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
             z-index: 1;
-            border: 2px solid rgba(12, 35, 64, 0.12);
+            border: 2px solid rgba(26, 188, 156, 0.15);
         }
+        .leaflet-container { background: #0a1628; }
         .wind-marker-v2 {
             display: flex;
             flex-direction: column;
@@ -1110,7 +1111,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.2</div>
+        <div>Bufa a Menorca? &mdash; v3.3</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1411,15 +1412,206 @@ async function fetchMarineForecast() {
 // ============================================================
 
 let map, markers = [];
+let windParticleLayer = null;
 
 function initMap() {
     map = L.map('map', { zoomControl: true }).setView([39.97, 4.08], 11);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
         subdomains: 'abcd',
-        maxZoom: 18
+        maxZoom: 18,
+        opacity: 0.85
+    }).addTo(map);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 18,
+        opacity: 0.5,
+        pane: 'overlayPane'
     }).addTo(map);
 }
+
+// --- Wind particle animation ---
+
+const WindParticles = L.Layer.extend({
+    options: { particleCount: 350, maxAge: 80, speedFactor: 0.4, lineWidth: 1.8, opacity: 0.55 },
+
+    initialize(stations, opts) {
+        L.setOptions(this, opts);
+        this._stations = stations;
+        this._particles = [];
+        this._animId = null;
+        this._windGrid = null;
+    },
+
+    onAdd(map) {
+        this._map = map;
+        this._canvas = L.DomUtil.create('canvas', 'wind-particles-canvas');
+        this._canvas.style.position = 'absolute';
+        this._canvas.style.top = '0';
+        this._canvas.style.left = '0';
+        this._canvas.style.pointerEvents = 'none';
+        this._canvas.style.zIndex = '250';
+        map.getPanes().overlayPane.appendChild(this._canvas);
+        this._ctx = this._canvas.getContext('2d');
+
+        this._resize();
+        this._buildGrid();
+        this._initParticles();
+        this._animate();
+
+        map.on('moveend zoomend resize', this._onMapChange, this);
+    },
+
+    onRemove(map) {
+        cancelAnimationFrame(this._animId);
+        map.getPanes().overlayPane.removeChild(this._canvas);
+        map.off('moveend zoomend resize', this._onMapChange, this);
+    },
+
+    setStations(stations) {
+        this._stations = stations;
+        this._buildGrid();
+    },
+
+    _onMapChange() {
+        this._resize();
+        this._buildGrid();
+        this._particles = [];
+        this._initParticles();
+    },
+
+    _resize() {
+        const size = this._map.getSize();
+        const topLeft = this._map.containerPointToLayerPoint([0, 0]);
+        L.DomUtil.setPosition(this._canvas, topLeft);
+        this._canvas.width = size.x;
+        this._canvas.height = size.y;
+    },
+
+    _buildGrid() {
+        if (!this._stations || !this._stations.length) return;
+        const bounds = this._map.getBounds();
+        const COLS = 40, ROWS = 30;
+        const latStep = (bounds.getNorth() - bounds.getSouth()) / ROWS;
+        const lonStep = (bounds.getEast() - bounds.getWest()) / COLS;
+        this._windGrid = { cols: COLS, rows: ROWS, bounds, latStep, lonStep, data: [] };
+
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const lat = bounds.getSouth() + (r + 0.5) * latStep;
+                const lon = bounds.getWest() + (c + 0.5) * lonStep;
+                const w = this._idw(lat, lon);
+                this._windGrid.data.push(w);
+            }
+        }
+    },
+
+    _idw(lat, lon) {
+        let sumWx = 0, sumWy = 0, sumW = 0;
+        const p = 2.5;
+        for (const s of this._stations) {
+            const d = Math.sqrt((lat - s.lat) ** 2 + (lon - s.lon) ** 2);
+            if (d < 0.001) {
+                const rad = (s.dir + 180) * Math.PI / 180;
+                return { u: Math.sin(rad) * s.wind, v: -Math.cos(rad) * s.wind };
+            }
+            const w = 1 / (d ** p);
+            const rad = (s.dir + 180) * Math.PI / 180;
+            sumWx += w * Math.sin(rad) * s.wind;
+            sumWy += w * (-Math.cos(rad) * s.wind);
+            sumW += w;
+        }
+        return { u: sumWx / sumW, v: sumWy / sumW };
+    },
+
+    _getWind(lat, lon) {
+        const g = this._windGrid;
+        if (!g) return { u: 0, v: 0 };
+        const c = (lon - g.bounds.getWest()) / g.lonStep - 0.5;
+        const r = (lat - g.bounds.getSouth()) / g.latStep - 0.5;
+        const ci = Math.max(0, Math.min(g.cols - 2, Math.floor(c)));
+        const ri = Math.max(0, Math.min(g.rows - 2, Math.floor(r)));
+        const cf = c - ci, rf = r - ri;
+        const idx = (ri2, ci2) => Math.min(ri2, g.rows - 1) * g.cols + Math.min(ci2, g.cols - 1);
+        const w00 = g.data[idx(ri, ci)], w10 = g.data[idx(ri, ci + 1)];
+        const w01 = g.data[idx(ri + 1, ci)], w11 = g.data[idx(ri + 1, ci + 1)];
+        return {
+            u: (1 - cf) * (1 - rf) * w00.u + cf * (1 - rf) * w10.u + (1 - cf) * rf * w01.u + cf * rf * w11.u,
+            v: (1 - cf) * (1 - rf) * w00.v + cf * (1 - rf) * w10.v + (1 - cf) * rf * w01.v + cf * rf * w11.v,
+        };
+    },
+
+    _initParticles() {
+        const bounds = this._map.getBounds();
+        this._particles = [];
+        for (let i = 0; i < this.options.particleCount; i++) {
+            this._particles.push(this._newParticle(bounds, true));
+        }
+    },
+
+    _newParticle(bounds, randomAge) {
+        return {
+            lat: bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth()),
+            lon: bounds.getWest() + Math.random() * (bounds.getEast() - bounds.getWest()),
+            age: randomAge ? Math.floor(Math.random() * this.options.maxAge) : 0,
+        };
+    },
+
+    _animate() {
+        this._step();
+        this._animId = requestAnimationFrame(() => this._animate());
+    },
+
+    _step() {
+        const ctx = this._ctx;
+        const w = this._canvas.width, h = this._canvas.height;
+        const bounds = this._map.getBounds();
+
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.fillStyle = 'rgba(0,0,0,0.91)';
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (const p of this._particles) {
+            if (p.age >= this.options.maxAge) {
+                Object.assign(p, this._newParticle(bounds, false));
+            }
+
+            const wind = this._getWind(p.lat, p.lon);
+            const speed = Math.sqrt(wind.u ** 2 + wind.v ** 2);
+            const sf = this.options.speedFactor / this._map.getZoom();
+
+            const newLat = p.lat + wind.v * sf * 0.01;
+            const newLon = p.lon + wind.u * sf * 0.01;
+
+            const from = this._map.latLngToContainerPoint([p.lat, p.lon]);
+            const to = this._map.latLngToContainerPoint([newLat, newLon]);
+
+            const alpha = Math.min(1, speed / 20) * this.options.opacity * (1 - p.age / this.options.maxAge * 0.5);
+            const hue = speed < 8 ? 160 : speed < 15 ? 200 : speed < 22 ? 30 : 0;
+            const sat = speed < 8 ? '60%' : '80%';
+            const lum = speed < 8 ? '70%' : speed < 15 ? '75%' : '65%';
+
+            ctx.beginPath();
+            ctx.moveTo(from.x, from.y);
+            ctx.lineTo(to.x, to.y);
+            ctx.strokeStyle = `hsla(${hue},${sat},${lum},${alpha.toFixed(2)})`;
+            ctx.lineWidth = this.options.lineWidth * Math.min(1.5, 0.5 + speed / 15);
+            ctx.stroke();
+
+            p.lat = newLat;
+            p.lon = newLon;
+            p.age++;
+
+            if (p.lat < bounds.getSouth() || p.lat > bounds.getNorth() ||
+                p.lon < bounds.getWest() || p.lon > bounds.getEast()) {
+                Object.assign(p, this._newParticle(bounds, false));
+            }
+        }
+    },
+});
 
 function shortName(name) {
     return name.replace('Port de ', '').replace("Cap d'", "C.").replace('Cap de ', 'C.');
@@ -1428,6 +1620,13 @@ function shortName(name) {
 function updateMap(stationsData) {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
+
+    if (windParticleLayer) {
+        windParticleLayer.setStations(stationsData);
+    } else {
+        windParticleLayer = new WindParticles(stationsData);
+        map.addLayer(windParticleLayer);
+    }
 
     stationsData.forEach(s => {
         const color = getWindColorHex(s.wind);
