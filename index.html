@@ -310,7 +310,7 @@
         /* === MARINE === */
         .marine-zones {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 1rem;
         }
         .marine-zone-card {
@@ -338,7 +338,7 @@
         }
         .marine-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
         }
         .marine-card {
@@ -351,31 +351,6 @@
         .marine-value { font-size: 1.3rem; font-weight: 800; color: var(--blue-deep); }
         .marine-value .unit { font-size: 0.75rem; font-weight: 400; color: var(--text-light); }
         .marine-label { font-size: 0.7rem; color: var(--text-light); margin-top: 0.15rem; }
-
-        .portus-section {
-            margin-top: 1.5rem;
-        }
-        .portus-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-        .portus-card {
-            background: var(--white);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-        .portus-card h4 {
-            padding: 0.8rem 1rem 0.4rem;
-            font-size: 0.85rem;
-            color: var(--blue-deep);
-        }
-        .portus-card iframe {
-            width: 100%;
-            height: 220px;
-            border: none;
-        }
 
         /* === WEBCAMS === */
         .webcams-grid {
@@ -606,16 +581,12 @@
             .app-title { font-size: 1.4rem; }
             .header-subtitle { font-size: 0.85rem; }
             #map { height: 340px; }
-            .stations-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
             .marine-zones { grid-template-columns: 1fr; }
-            .marine-grid { grid-template-columns: repeat(3, 1fr); }
             .webcams-grid { grid-template-columns: 1fr; }
             .forecast-panel iframe { height: 350px; }
-            .portus-cards { grid-template-columns: 1fr; }
         }
         @media (max-width: 480px) {
-            .stations-grid { grid-template-columns: 1fr; }
-            .marine-grid { grid-template-columns: repeat(2, 1fr); }
+            .marine-grid { grid-template-columns: repeat(3, 1fr) !important; }
             .marine-zone-card { padding: 0.8rem; }
             .nav-inner a { padding: 0.7rem 0.75rem; font-size: 0.8rem; }
         }
@@ -1040,10 +1011,9 @@
         <div class="nav-inner">
             <a href="#mapa" class="active">Mapa</a>
             <a href="#zoom-estacio">Zoom estació</a>
-            <a href="#estacions">Estacions</a>
+            <a href="#boia">Boia</a>
             <a href="#marine">Mar</a>
             <a href="#marees">Marees</a>
-            <a href="#boia">Boia</a>
             <a href="#webcams">Webcams</a>
             <a href="#prediccio">Predicció</a>
         </div>
@@ -1067,10 +1037,47 @@
             </div>
         </section>
 
-        <section id="estacions">
-            <h2 class="section-title">Estacions costaneres</h2>
-            <div class="stations-grid" id="stations-grid">
-                <div class="loading"><div class="spinner"></div> Carregant estacions...</div>
+        <section id="boia">
+            <h2 class="section-title">Boia de Maó &middot; Estat del mar</h2>
+            <div class="buoy-card">
+                <div class="buoy-header" id="buoy-header">
+                    <div class="buoy-wave-ring" id="buoy-ring">
+                        <svg viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="5"/>
+                            <circle cx="40" cy="40" r="34" fill="none" stroke="#3498db" stroke-width="5"
+                                stroke-dasharray="213.6" stroke-dashoffset="213.6"
+                                stroke-linecap="round" transform="rotate(-90 40 40)" id="buoy-ring-progress"/>
+                        </svg>
+                        <div class="buoy-wave-value">
+                            <span class="buoy-wave-label">Hs</span>
+                            <span class="buoy-wave-num" id="buoy-hs-num">--</span>
+                            <span class="buoy-wave-unit">m</span>
+                        </div>
+                    </div>
+                    <div class="buoy-summary">
+                        <h3 id="buoy-sea-state">Carregant...</h3>
+                        <div class="buoy-station">Boia REDEXT 2838 · 39.71°N, 4.42°E · Profunditat 300m</div>
+                    </div>
+                </div>
+                <div class="buoy-metrics" id="buoy-metrics">
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🌊</div><div class="buoy-metric-value" id="buoy-hmax">--<span class="unit"> m</span></div><div class="buoy-metric-label">Hmax</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">⏱️</div><div class="buoy-metric-value" id="buoy-tp">--<span class="unit"> s</span></div><div class="buoy-metric-label">Període pic</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🧭</div><div class="buoy-metric-value" id="buoy-wave-dir">--<span class="unit">°</span></div><div class="buoy-metric-label">Dir. onatge</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">💨</div><div class="buoy-metric-value" id="buoy-wind">--<span class="unit"> kn</span></div><div class="buoy-metric-label">Vent mar endins</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🌡️</div><div class="buoy-metric-value" id="buoy-sst">--<span class="unit"> °C</span></div><div class="buoy-metric-label">Temp. mar</div></div>
+                    <div class="buoy-metric"><div class="buoy-metric-icon">🔵</div><div class="buoy-metric-value" id="buoy-pressure">--<span class="unit"> hPa</span></div><div class="buoy-metric-label">Pressió</div></div>
+                </div>
+                <div class="buoy-chart-wrap">
+                    <div class="buoy-chart-title">Evolució onatge — últimes 48h</div>
+                    <svg class="buoy-chart-svg" id="buoy-chart" viewBox="0 0 800 180" preserveAspectRatio="none"></svg>
+                    <div class="buoy-chart-legend">
+                        <span class="legend-hs">Hs (significativa)</span>
+                        <span class="legend-hmax">Hmax (màxima)</span>
+                    </div>
+                </div>
+                <div class="buoy-note">
+                    Dades de la boia oceanogràfica de Puertos del Estado (REDEXT) al SE de Menorca. Mesura onatge, vent, temperatura i pressió cada hora a 300m de profunditat.
+                </div>
             </div>
         </section>
 
@@ -1078,27 +1085,6 @@
             <h2 class="section-title">Condicions marines</h2>
             <div class="marine-grid" id="marine-grid">
                 <div class="loading"><div class="spinner"></div> Carregant dades marines...</div>
-            </div>
-            <div class="portus-section">
-                <h3 style="font-size:1rem;color:var(--blue-deep);margin-bottom:0.8rem;font-weight:600;">Boia de Maó &mdash; Puertos del Estado</h3>
-                <div class="portus-cards">
-                    <div class="portus-card">
-                        <h4>Alçada d'ona (Hm0, Hmax)</h4>
-                        <iframe id="portus-waves" loading="lazy"></iframe>
-                    </div>
-                    <div class="portus-card">
-                        <h4>Període d'ona (Tm02, Tp)</h4>
-                        <iframe id="portus-period" loading="lazy"></iframe>
-                    </div>
-                    <div class="portus-card">
-                        <h4>Temperatura de l'aigua</h4>
-                        <iframe id="portus-temp" loading="lazy"></iframe>
-                    </div>
-                    <div class="portus-card">
-                        <h4>Vent a la boia</h4>
-                        <iframe id="portus-wind" loading="lazy"></iframe>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -1155,50 +1141,6 @@
             </div>
         </section>
 
-        <section id="boia">
-            <h2 class="section-title">Boia de Maó &middot; Estat del mar</h2>
-            <div class="buoy-card">
-                <div class="buoy-header" id="buoy-header">
-                    <div class="buoy-wave-ring" id="buoy-ring">
-                        <svg viewBox="0 0 80 80">
-                            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="5"/>
-                            <circle cx="40" cy="40" r="34" fill="none" stroke="#3498db" stroke-width="5"
-                                stroke-dasharray="213.6" stroke-dashoffset="213.6"
-                                stroke-linecap="round" transform="rotate(-90 40 40)" id="buoy-ring-progress"/>
-                        </svg>
-                        <div class="buoy-wave-value">
-                            <span class="buoy-wave-label">Hs</span>
-                            <span class="buoy-wave-num" id="buoy-hs-num">--</span>
-                            <span class="buoy-wave-unit">m</span>
-                        </div>
-                    </div>
-                    <div class="buoy-summary">
-                        <h3 id="buoy-sea-state">Carregant...</h3>
-                        <div class="buoy-station">Boia REDEXT 2838 · 39.71°N, 4.42°E · Profunditat 300m</div>
-                    </div>
-                </div>
-                <div class="buoy-metrics" id="buoy-metrics">
-                    <div class="buoy-metric"><div class="buoy-metric-icon">🌊</div><div class="buoy-metric-value" id="buoy-hmax">--<span class="unit"> m</span></div><div class="buoy-metric-label">Hmax</div></div>
-                    <div class="buoy-metric"><div class="buoy-metric-icon">⏱️</div><div class="buoy-metric-value" id="buoy-tp">--<span class="unit"> s</span></div><div class="buoy-metric-label">Període pic</div></div>
-                    <div class="buoy-metric"><div class="buoy-metric-icon">🧭</div><div class="buoy-metric-value" id="buoy-wave-dir">--<span class="unit">°</span></div><div class="buoy-metric-label">Dir. onatge</div></div>
-                    <div class="buoy-metric"><div class="buoy-metric-icon">💨</div><div class="buoy-metric-value" id="buoy-wind">--<span class="unit"> kn</span></div><div class="buoy-metric-label">Vent mar endins</div></div>
-                    <div class="buoy-metric"><div class="buoy-metric-icon">🌡️</div><div class="buoy-metric-value" id="buoy-sst">--<span class="unit"> °C</span></div><div class="buoy-metric-label">Temp. mar</div></div>
-                    <div class="buoy-metric"><div class="buoy-metric-icon">🔵</div><div class="buoy-metric-value" id="buoy-pressure">--<span class="unit"> hPa</span></div><div class="buoy-metric-label">Pressió</div></div>
-                </div>
-                <div class="buoy-chart-wrap">
-                    <div class="buoy-chart-title">Evolució onatge — últimes 48h</div>
-                    <svg class="buoy-chart-svg" id="buoy-chart" viewBox="0 0 800 180" preserveAspectRatio="none"></svg>
-                    <div class="buoy-chart-legend">
-                        <span class="legend-hs">Hs (significativa)</span>
-                        <span class="legend-hmax">Hmax (màxima)</span>
-                    </div>
-                </div>
-                <div class="buoy-note">
-                    Dades de la boia oceanogràfica de Puertos del Estado (REDEXT) al SE de Menorca. Mesura onatge, vent, temperatura i pressió cada hora a 300m de profunditat.
-                </div>
-            </div>
-        </section>
-
         <section id="webcams">
             <h2 class="section-title">Webcams de costa</h2>
             <div class="webcams-grid" id="webcams-grid"></div>
@@ -1240,7 +1182,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.7</div>
+        <div>Bufa a Menorca? &mdash; v3.8</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1947,14 +1889,14 @@ function renderMarine(data) {
                     <span style="color:var(--blue-mid);">&#9650;</span> Costa nord
                     <span class="coords">40.12°N, 4.08°E</span>
                 </div>
-                <div class="marine-grid">${nord ? renderMarineZone(nord) : '<div>—</div>'}</div>
+                <div class="marine-grid" style="grid-template-columns:repeat(6,1fr);">${nord ? renderMarineZone(nord) : '<div>—</div>'}</div>
             </div>
             <div class="marine-zone-card">
                 <div class="marine-zone-header">
                     <span style="color:var(--blue-mid);">&#9660;</span> Costa sud
                     <span class="coords">39.80°N, 4.10°E</span>
                 </div>
-                <div class="marine-grid">${sud ? renderMarineZone(sud) : '<div>—</div>'}</div>
+                <div class="marine-grid" style="grid-template-columns:repeat(6,1fr);">${sud ? renderMarineZone(sud) : '<div>—</div>'}</div>
             </div>
         </div>
     `;
@@ -2273,18 +2215,6 @@ function updateClock() {
     const now = new Date();
     document.getElementById('header-time').textContent = now.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
     document.getElementById('header-date').textContent = now.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-
-function initPortus() {
-    const now = new Date();
-    const from = new Date(now.getTime() - 48 * 60 * 60 * 1000);
-    const pad = n => String(n).padStart(2, '0');
-    const fromStr = `${from.getFullYear()}${pad(from.getMonth()+1)}${pad(from.getDate())}%40${pad(from.getHours())}00`;
-    const base = `https://portus.puertos.es/PortusData/rtChart?station=2838&isRadar=false&locale=es&scroll=true&from=${fromStr}`;
-    document.getElementById('portus-waves').src = base + '&params=Hm0,Hmax&dirParams=';
-    document.getElementById('portus-period').src = base + '&params=Tm02,Tp&dirParams=';
-    document.getElementById('portus-temp').src = base + '&params=WaterTemp&dirParams=';
-    document.getElementById('portus-wind').src = base + '&params=WindSpeed,WindGust&dirParams=WindDir';
 }
 
 function setStatus(text, ok = true) {
@@ -2741,7 +2671,6 @@ async function loadAllData() {
 
         updateMap(stationsData);
         renderShelter(stationsData, marineData);
-        renderStations(stationsData);
         renderMarine(marineData);
         renderHourlyForecast(hourlyData);
         renderMarineForecast(marineFcData);
@@ -2763,7 +2692,7 @@ async function init() {
     renderWebcams();
     setupTabs();
     setupNav();
-    initPortus();
+
     loadWindguru();
 
     await loadAllData();
