@@ -1111,7 +1111,7 @@
     </div>
 
     <footer>
-        <div>Bufa a Menorca? &mdash; v3.4</div>
+        <div>Bufa a Menorca? &mdash; v3.5</div>
         <div style="margin-top:0.3rem;">Dades: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy</a> &middot; <a href="https://www.windguru.cz/" target="_blank" rel="noopener">Windguru</a> &middot; <a href="https://www.meteoclimatic.net/" target="_blank" rel="noopener">Meteoclimatic</a> &middot; <a href="https://portus.puertos.es/" target="_blank" rel="noopener">Puertos del Estado</a></div>
         <div style="margin-top:0.3rem;">Actualització automàtica cada 5 minuts</div>
     </footer>
@@ -1541,12 +1541,12 @@ const WindParticles = L.Layer.extend({
             const d = Math.sqrt((lat - s.lat) ** 2 + (lon - s.lon) ** 2);
             if (d < 0.001) {
                 const rad = (s.dir + 180) * Math.PI / 180;
-                return { u: Math.sin(rad) * s.wind, v: -Math.cos(rad) * s.wind, spd: s.wind };
+                return { u: Math.sin(rad) * s.wind, v: Math.cos(rad) * s.wind, spd: s.wind };
             }
             const w = 1 / (d ** p);
             const rad = (s.dir + 180) * Math.PI / 180;
             sumWx += w * Math.sin(rad) * s.wind;
-            sumWy += w * (-Math.cos(rad) * s.wind);
+            sumWy += w * Math.cos(rad) * s.wind;
             sumW += w;
         }
         const u = sumWx / sumW, v = sumWy / sumW;
@@ -1689,7 +1689,7 @@ function updateMap(stationsData) {
             className: 'wind-marker-v2',
             html: `
                 <div class="wm-circle" style="background:${color}">
-                    <svg width="22" height="22" viewBox="0 0 32 32" style="transform:rotate(${s.dir}deg)">
+                    <svg width="22" height="22" viewBox="0 0 32 32" style="transform:rotate(${(s.dir + 180) % 360}deg)">
                         <polygon points="16,3 23,25 16,20 9,25" fill="white" stroke="rgba(0,0,0,0.1)" stroke-width="0.5" stroke-linejoin="round"/>
                     </svg>
                 </div>
